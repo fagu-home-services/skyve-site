@@ -1,0 +1,347 @@
+<!doctype html>
+<html lang="pt-BR"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Skyve Studio — Editor Visual</title>
+<style>
+:root{--bg:#e7ecee;--panel:#f7f9fa;--dark:#062330;--dark2:#0b3346;--horizon:#072d3e;--ridge:#0b6792;--ridge-soft:#e2eef4;--accent:#ff8a3d;--accent-deep:#e9701f;--ink:#0f1b21;--mut:#5c6b72;--line:#dfe4e6;--line2:#31434c;--warn:#c0432a;--warn-soft:#fdeee9}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{font:14px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;color:var(--ink);background:var(--bg);overflow:hidden}
+button{font:inherit;cursor:pointer}
+.app{display:grid;grid-template-rows:52px 1fr;height:100vh}
+.top{background:var(--horizon);color:#eaf3f7;display:flex;align-items:center;gap:16px;padding:0 16px;border-bottom:1px solid #000}
+.top .logo{display:flex;align-items:center;gap:9px;font-weight:800;letter-spacing:-.01em}
+.top .logo .mk{width:24px;height:24px;border-radius:6px;background:linear-gradient(135deg,var(--ridge),var(--horizon));display:grid;place-items:center;color:#fff;font-size:13px}
+.top .logo small{font-weight:500;color:var(--accent);font-size:12px}
+.top .cur{font-size:12.5px;color:#9fc0d0;font-family:ui-monospace,Menlo,Consolas,monospace;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:280px}
+.spacer{flex:1}
+.devs{display:flex;gap:2px;background:#04202c;border-radius:9px;padding:3px}
+.devs button{background:none;border:none;color:#7ea6ba;padding:5px 10px;border-radius:6px;font-size:12px}
+.devs button.on{background:var(--ridge);color:#fff}
+.badge{background:var(--accent);color:#3a1c00;font-weight:700;font-size:12px;border-radius:999px;padding:3px 10px;min-width:22px;text-align:center}
+.tbtn{background:#0e3a4f;border:1px solid #1b4d66;color:#eaf3f7;padding:7px 13px;border-radius:8px;font-size:13px;font-weight:600}
+.tbtn.primary{background:var(--accent);border-color:var(--accent);color:#3a1c00}
+.tbtn:hover{filter:brightness(1.08)}
+.main{display:grid;grid-template-columns:266px 1fr 320px;min-height:0}
+.side,.insp{background:var(--panel);overflow-y:auto}
+.side{border-right:1px solid var(--line)}
+.insp{border-left:1px solid var(--line)}
+.canvas{background:var(--bg);overflow:auto;display:flex;justify-content:center;padding:20px}
+.frameWrap{background:#fff;box-shadow:0 6px 30px rgba(7,45,62,.16);width:100%;max-width:1180px;align-self:flex-start;transition:max-width .2s}
+.frameWrap.tablet{max-width:820px}.frameWrap.mobile{max-width:390px}
+iframe{width:100%;height:calc(100vh - 92px);border:0;display:block;background:#fff}
+.tabs{display:flex;position:sticky;top:0;background:var(--panel);border-bottom:1px solid var(--line);z-index:2}
+.tabs button{flex:1;background:none;border:none;padding:11px;font-weight:600;font-size:12.5px;color:var(--mut);border-bottom:2px solid transparent}
+.tabs button.on{color:var(--ridge);border-bottom-color:var(--ridge)}
+.pane{padding:12px}
+.pane.hide{display:none}
+.search{width:100%;border:1px solid var(--line);border-radius:9px;padding:8px 11px;font:inherit;margin-bottom:8px;background:#fff}
+.onlylive{display:flex;align-items:center;gap:7px;font-size:12px;color:var(--mut);margin:2px 2px 10px}
+.seclab{font-size:10.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ridge);margin:12px 4px 5px}
+.pg{display:flex;align-items:center;gap:6px;width:100%;text-align:left;background:none;border:none;padding:7px 9px;border-radius:7px;color:var(--ink);font-size:13px;line-height:1.25}
+.pg:hover{background:var(--ridge-soft)}
+.pg.on{background:var(--ridge);color:#fff}
+.pg .star{color:var(--accent);font-size:11px;flex:none}
+.pg.on .star{color:#fff}
+.pg .lab{flex:1;min-width:0}
+.pg .r{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:11px;opacity:.66;display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pg .warnc{background:var(--warn);color:#fff;font-size:10px;font-weight:700;border-radius:999px;padding:1px 6px;flex:none}
+.custom{margin-top:14px;border-top:1px solid var(--line);padding-top:12px}
+.custom label{font-size:11px;color:var(--mut);display:block;margin-bottom:5px}
+.fl-filter{display:flex;gap:5px;margin-bottom:10px}
+.fl-filter button{flex:1;border:1px solid var(--line);background:#fff;border-radius:7px;padding:6px;font-size:12px;color:var(--mut);font-weight:600}
+.fl-filter button.on{background:var(--ridge);color:#fff;border-color:var(--ridge)}
+.field{display:flex;gap:8px;align-items:center;width:100%;text-align:left;background:none;border:none;border-bottom:1px solid #eef1f2;padding:8px 6px}
+.field:hover{background:var(--ridge-soft)}
+.field.on{background:#e9f2f7}
+.field .tg{font-size:9px;font-weight:800;color:#fff;background:var(--ridge);border-radius:4px;padding:2px 5px;text-transform:uppercase;flex:none}
+.field .tg.img{background:var(--accent);color:#3a1c00}
+.field .tx{font-size:12px;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.field .ch{width:7px;height:7px;border-radius:50%;background:var(--accent);flex:none;margin-left:auto;visibility:hidden}
+.field.changed .ch{visibility:visible}
+.ins-h{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ridge);padding:14px 14px 0}
+.ins-b{padding:12px 14px}
+.ins-empty{color:var(--mut);font-size:13px;padding:20px 14px;line-height:1.6}
+.kv{font-size:11.5px;color:var(--mut);margin-bottom:10px}
+.kv b{color:var(--ink)}
+.lab{font-size:11px;font-weight:700;color:var(--mut);text-transform:uppercase;letter-spacing:.05em;margin:14px 0 6px}
+.ta{width:100%;border:1px solid var(--line);border-radius:9px;padding:9px;font:inherit;min-height:90px;resize:vertical;background:#fff}
+.inp{width:100%;border:1px solid var(--line);border-radius:9px;padding:8px 10px;font:inherit;background:#fff}
+.gal{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px}
+.gal img{width:100%;aspect-ratio:1;object-fit:cover;border-radius:7px;border:2px solid transparent;cursor:pointer;background:#eee}
+.gal img:hover{border-color:var(--ridge)}
+.gal img.on{border-color:var(--accent)}
+.row2{display:flex;gap:8px;align-items:center}
+.seg{display:flex;gap:4px;flex-wrap:wrap}
+.seg button{border:1px solid var(--line);background:#fff;border-radius:7px;padding:6px 10px;font-size:12px;color:var(--mut)}
+.seg button.on{background:var(--ridge);color:#fff;border-color:var(--ridge)}
+.rng{width:100%}
+.small{font-size:11px;color:var(--mut);margin-top:6px;line-height:1.4}
+.ibtn{width:100%;border:1px dashed var(--ridge);background:var(--ridge-soft);color:var(--ridge);border-radius:9px;padding:9px;font-weight:600;margin-top:8px}
+.reset{background:none;border:none;color:var(--warn);font-size:12px;text-decoration:underline;padding:6px 0;margin-top:8px}
+.thumb{width:100%;aspect-ratio:16/9;object-fit:cover;border-radius:9px;border:1px solid var(--line);margin-bottom:10px}
+/* flags panel */
+.flags{margin:6px 14px 14px;background:var(--warn-soft);border:1px solid #f3cfc3;border-radius:11px;padding:12px 13px}
+.flags.clean{background:#eaf6ef;border-color:#c7e6d3}
+.flags .fh{font-size:11px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:var(--warn);margin-bottom:8px}
+.flags.clean .fh{color:#2f7d52}
+.flags ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:7px}
+.flags li{font-size:12.5px;line-height:1.45;color:#5a4038;padding-left:18px;position:relative}
+.flags li::before{content:"⚠";position:absolute;left:0;color:var(--warn)}
+.flags li.ok{color:#2f6b49}
+.flags li.ok::before{content:"✓";color:#2f7d52}
+.flags li.note{color:var(--mut)}
+.flags li.note::before{content:"·";color:var(--mut);left:5px}
+.help{position:fixed;bottom:14px;left:280px;background:var(--horizon);color:#cfe3ee;font-size:11.5px;padding:8px 12px;border-radius:9px;max-width:520px;line-height:1.5;box-shadow:0 4px 16px rgba(0,0,0,.2)}
+.help b{color:#fff}
+.toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:var(--ridge);color:#fff;padding:11px 18px;border-radius:10px;font-size:13px;box-shadow:0 6px 20px rgba(7,45,62,.3);opacity:0;transition:opacity .2s;pointer-events:none;z-index:50}
+.toast.show{opacity:1}
+</style></head>
+<body>
+<div class="app">
+  <div class="top">
+    <div class="logo"><span class="mk">▲</span>Skyve <small>Studio</small></div>
+    <div class="cur" id="curname">— selecione uma página —</div>
+    <div class="spacer"></div>
+    <div class="devs"><button data-d="desk" class="on">Desktop</button><button data-d="tablet">Tablet</button><button data-d="mobile">Mobile</button></div>
+    <span class="badge" id="badge" title="alterações">0</span>
+    <button class="tbtn primary" id="expjson">⬇ Exportar mudanças (JSON)</button>
+  </div>
+  <div class="main">
+    <div class="side">
+      <div class="tabs"><button data-t="pages" class="on">Páginas</button><button data-t="fields">Campos <span id="count" style="opacity:.6"></span></button></div>
+      <div class="pane" id="pane-pages">
+        <input class="search" id="psearch" placeholder="Buscar página…">
+        <label class="onlylive"><input type="checkbox" id="onlyLive" checked> Só o que vai ao ar (v1) <b id="liveCount" style="color:var(--ridge)"></b></label>
+        <div id="plist"></div>
+        <div class="custom">
+          <label>Abrir caminho custom (mesma origem)</label>
+          <div class="row2"><input class="inp" id="cpath" placeholder="/services/…"><button class="tbtn" style="background:var(--ridge);color:#fff;border:none" id="cgo">Ir</button></div>
+        </div>
+      </div>
+      <div class="pane hide" id="pane-fields">
+        <div class="fl-filter"><button data-f="all" class="on">Todos</button><button data-f="text">Texto</button><button data-f="img">Imagem</button></div>
+        <div id="flist"></div>
+      </div>
+    </div>
+    <div class="canvas"><div class="frameWrap" id="fw"><iframe id="frame" title="preview"></iframe></div></div>
+    <div class="insp" id="insp"><div class="ins-empty">Escolha uma página à esquerda. Ao abrir, mostro aqui <b>o que precisa mudar</b> nela. Depois clique num <b>texto</b> pra editar direto, ou numa <b>imagem</b> pra trocar.</div></div>
+  </div>
+</div>
+<div class="help" id="help"><b>Como usar:</b> abra uma página → veja os alertas → clique num texto e edite direto, ou numa imagem pra trocar. No fim, <b>Exportar mudanças (JSON)</b> e me manda que eu aplico no site.</div>
+<div class="toast" id="toast"></div>
+
+<script id="pagesdata" type="application/json">[{"r":"/roofing-arlington-wa","s":"Cities","t":"Arlington","live":true},{"r":"/roofing-auburn-wa","s":"Cities","t":"Auburn","live":true},{"r":"/roofing-bellevue-wa","s":"Cities","t":"Bellevue","live":true},{"r":"/roofing-bothell-wa","s":"Cities","t":"Bothell","live":true},{"r":"/roofing-brier-wa","s":"Cities","t":"Brier","live":true},{"r":"/roofing-burien-wa","s":"Cities","t":"Burien","live":true},{"r":"/roofing-edmonds-wa","s":"Cities","t":"Edmonds","live":true},{"r":"/roofing-everett-wa","s":"Cities","t":"Everett","live":true},{"r":"/roofing-federal-way-wa","s":"Cities","t":"Federal Way","live":true},{"r":"/roofing-issaquah-wa","s":"Cities","t":"Issaquah","live":true},{"r":"/roofing-kenmore-wa","s":"Cities","t":"Kenmore","live":true},{"r":"/roofing-kent-wa","s":"Cities","t":"Kent","live":true},{"r":"/roofing-kirkland-wa","s":"Cities","t":"Kirkland","live":true},{"r":"/roofing-lake-stevens-wa","s":"Cities","t":"Lake Stevens","live":true},{"r":"/roofing-lynnwood-wa","s":"Cities","t":"Lynnwood","live":true},{"r":"/roofing-marysville-wa","s":"Cities","t":"Marysville","live":true},{"r":"/roofing-mercer-island-wa","s":"Cities","t":"Mercer Island","live":true},{"r":"/roofing-mill-creek-wa","s":"Cities","t":"Mill Creek","live":true},{"r":"/roofing-monroe-wa","s":"Cities","t":"Monroe","live":true},{"r":"/roofing-mountlake-terrace-wa","s":"Cities","t":"Mountlake Terrace","live":true},{"r":"/roofing-mukilteo-wa","s":"Cities","t":"Mukilteo","live":true},{"r":"/roofing-newcastle-wa","s":"Cities","t":"Newcastle","live":true},{"r":"/roofing-redmond-wa","s":"Cities","t":"Redmond","live":true},{"r":"/roofing-renton-wa","s":"Cities","t":"Renton","live":true},{"r":"/roofing-sammamish-wa","s":"Cities","t":"Sammamish","live":true},{"r":"/roofing-seatac-wa","s":"Cities","t":"Seatac","live":true},{"r":"/roofing-seattle-wa","s":"Cities","t":"Seattle","live":true},{"r":"/roofing-shoreline-wa","s":"Cities","t":"Shoreline","live":true},{"r":"/roofing-snohomish-wa","s":"Cities","t":"Snohomish","live":true},{"r":"/roofing-stanwood-wa","s":"Cities","t":"Stanwood","live":true},{"r":"/roofing-tukwila-wa","s":"Cities","t":"Tukwila","live":true},{"r":"/roofing-woodinville-wa","s":"Cities","t":"Woodinville","live":true},{"r":"/service-area","s":"Cities","t":"Service Area","live":true},{"r":"/estimate","s":"Conversion","t":"Estimate","live":true},{"r":"/estimate/detailed","s":"Conversion","t":"Detailed","live":false},{"r":"/estimate/instant","s":"Conversion","t":"Instant","live":true},{"r":"/financing","s":"Conversion","t":"Financing","live":true},{"r":"/free-estimate","s":"Conversion","t":"Free Estimate","live":true},{"r":"/about","s":"Core","t":"About","live":true},{"r":"/careers","s":"Core","t":"Careers","live":false},{"r":"/contact","s":"Core","t":"Contact","live":true},{"r":"/faq","s":"Core","t":"Faq","live":true},{"r":"/why-skyve","s":"Core","t":"Why Skyve","live":true},{"r":"/exteriors/deck-construction","s":"Exteriors","t":"Deck Construction","live":false},{"r":"/exteriors/deck-replacement","s":"Exteriors","t":"Deck Replacement","live":false},{"r":"/exteriors/exterior-painting","s":"Exteriors","t":"Exterior Painting","live":false},{"r":"/exteriors/fiber-cement-siding","s":"Exteriors","t":"Fiber Cement Siding","live":false},{"r":"/exteriors/gutter-guards","s":"Exteriors","t":"Gutter Guards","live":false},{"r":"/exteriors/gutter-installation","s":"Exteriors","t":"Gutter Installation","live":false},{"r":"/exteriors/gutter-replacement","s":"Exteriors","t":"Gutter Replacement","live":false},{"r":"/exteriors/siding-replacement","s":"Exteriors","t":"Siding Replacement","live":false},{"r":"/exteriors/skylight-installation","s":"Exteriors","t":"Skylight Installation","live":false},{"r":"/exteriors/skylight-replacement","s":"Exteriors","t":"Skylight Replacement","live":false},{"r":"/","s":"Home","t":"Home","live":true},{"r":"/legal/ftc-disclosure","s":"Legal","t":"Ftc Disclosure","live":false},{"r":"/legal/privacy","s":"Legal","t":"Privacy","live":true},{"r":"/legal/release-forms","s":"Legal","t":"Release Forms","live":false},{"r":"/legal/revoke-consent","s":"Legal","t":"Revoke Consent","live":false},{"r":"/legal/terms","s":"Legal","t":"Terms","live":true},{"r":"/materials/architectural-shingles","s":"Materials","t":"Architectural Shingles","live":false},{"r":"/materials/cedar-shake-roofing","s":"Materials","t":"Cedar Shake Roofing","live":false},{"r":"/materials/low-slope-roofing","s":"Materials","t":"Low Slope Roofing","live":false},{"r":"/materials/luxury-shingles","s":"Materials","t":"Luxury Shingles","live":false},{"r":"/materials/metal-roofing","s":"Materials","t":"Metal Roofing","live":false},{"r":"/materials/pvc-roofing","s":"Materials","t":"Pvc Roofing","live":false},{"r":"/materials/standing-seam-roofing","s":"Materials","t":"Standing Seam Roofing","live":false},{"r":"/materials/synthetic-shake-roofing","s":"Materials","t":"Synthetic Shake Roofing","live":false},{"r":"/materials/tpo-roofing","s":"Materials","t":"Tpo Roofing","live":false},{"r":"/all-pages","s":"Other","t":"All Pages","live":false},{"r":"/login","s":"Other","t":"Login","live":false},{"r":"/portal","s":"Portal (F2)","t":"Portal","live":false},{"r":"/portal/budget-payments","s":"Portal (F2)","t":"Budget Payments","live":false},{"r":"/portal/change-orders","s":"Portal (F2)","t":"Change Orders","live":false},{"r":"/portal/documents","s":"Portal (F2)","t":"Documents","live":false},{"r":"/portal/help-support","s":"Portal (F2)","t":"Help Support","live":false},{"r":"/portal/inspection-history","s":"Portal (F2)","t":"Inspection History","live":false},{"r":"/portal/maintenance","s":"Portal (F2)","t":"Maintenance","live":false},{"r":"/portal/messages","s":"Portal (F2)","t":"Messages","live":false},{"r":"/portal/monitoring","s":"Portal (F2)","t":"Monitoring","live":false},{"r":"/portal/my-home","s":"Portal (F2)","t":"My Home","live":false},{"r":"/portal/my-profile","s":"Portal (F2)","t":"My Profile","live":false},{"r":"/portal/photos","s":"Portal (F2)","t":"Photos","live":false},{"r":"/portal/project-timeline","s":"Portal (F2)","t":"Project Timeline","live":false},{"r":"/portal/property-passport","s":"Portal (F2)","t":"Property Passport","live":false},{"r":"/portal/resources","s":"Portal (F2)","t":"Resources","live":false},{"r":"/portal/roof-score","s":"Portal (F2)","t":"Roof Score","live":false},{"r":"/portal/selections","s":"Portal (F2)","t":"Selections","live":false},{"r":"/portal/settings","s":"Portal (F2)","t":"Settings","live":false},{"r":"/portal/timeline","s":"Portal (F2)","t":"Timeline","live":false},{"r":"/portal/warranty","s":"Portal (F2)","t":"Warranty","live":false},{"r":"/ambassadors-program","s":"Programs (F2)","t":"Ambassadors Program","live":false},{"r":"/apply-partner","s":"Programs (F2)","t":"Apply Partner","live":false},{"r":"/contractors-program","s":"Programs (F2)","t":"Contractors Program","live":false},{"r":"/investors-program","s":"Programs (F2)","t":"Investors Program","live":false},{"r":"/pro-partner","s":"Programs (F2)","t":"Pro Partner","live":false},{"r":"/realtors-program","s":"Programs (F2)","t":"Realtors Program","live":false},{"r":"/field-reports","s":"Proof","t":"Field Reports","live":false},{"r":"/projects","s":"Proof","t":"Projects","live":true},{"r":"/reviews","s":"Proof","t":"Reviews","live":true},{"r":"/share-your-story","s":"Proof","t":"Share Your Story","live":false},{"r":"/testimonials","s":"Proof","t":"Testimonials","live":false},{"r":"/calculators/financing","s":"Resources (F2)","t":"Financing","live":false},{"r":"/calculators/material-comparison","s":"Resources (F2)","t":"Material Comparison","live":false},{"r":"/calculators/roof-life-expectancy","s":"Resources (F2)","t":"Roof Life Expectancy","live":false},{"r":"/learn","s":"Resources (F2)","t":"Learn","live":false},{"r":"/skyve-tv","s":"Resources (F2)","t":"Skyve Tv","live":false},{"r":"/services","s":"Roofing Services","t":"Services","live":true},{"r":"/services/emergency-roof-repair","s":"Roofing Services","t":"Emergency Roof Repair","live":false},{"r":"/services/insurance-claims-assistance","s":"Roofing Services","t":"Insurance Claims Assistance","live":false},{"r":"/services/roof-certifications","s":"Roofing Services","t":"Roof Certifications","live":false},{"r":"/services/roof-cleaning","s":"Roofing Services","t":"Roof Cleaning","live":false},{"r":"/services/roof-inspection","s":"Roofing Services","t":"Roof Inspection","live":false},{"r":"/services/roof-leak-repair","s":"Roofing Services","t":"Roof Leak Repair","live":false},{"r":"/services/roof-maintenance","s":"Roofing Services","t":"Roof Maintenance","live":false},{"r":"/services/roof-repair","s":"Roofing Services","t":"Roof Repair","live":false},{"r":"/services/roof-replacement","s":"Roofing Services","t":"Roof Replacement","live":true},{"r":"/services/roof-ventilation","s":"Roofing Services","t":"Roof Ventilation","live":false},{"r":"/services/storm-damage-repair","s":"Roofing Services","t":"Storm Damage Repair","live":false},{"r":"/certifications","s":"Trust","t":"Certifications","live":false},{"r":"/licenses-insurance","s":"Trust","t":"Licenses Insurance","live":true},{"r":"/safety-program","s":"Trust","t":"Safety Program","live":false},{"r":"/warranty","s":"Trust","t":"Warranty","live":true},{"r":"/warranty/register","s":"Trust","t":"Register","live":false},{"r":"/warranty/register/type","s":"Trust","t":"Type","live":false}]</script>
+<script>
+const $=(s,r)=>(r||document).querySelector(s);
+const $$=(s,r)=>[...(r||document).querySelectorAll(s)];
+const PAGES=JSON.parse($('#pagesdata').textContent);
+const SEC_ORDER=['Home','Core','Conversion','Roofing Services','Materials','Exteriors','Proof','Trust','Cities','Legal','Portal (F2)','Resources (F2)','Programs (F2)','Other'];
+const IMG=n=>'/images/'+n+'.webp';
+const ASSETS=['hero-home-dusk-1','hero-home-dusk-2','hero-home-dusk-3','home-day-1','home-day-2','home-day-3','home-day-4','roof-replacement-1','roof-replacement-2','roof-replacement-3','roof-repair-1','roof-repair-2','roof-inspection-1','roof-inspection-2','roof-cleaning-1','roof-maintenance-1','storm-damage-1','storm-damage-2','gutters-1','gutters-2','siding-1','siding-2','skylight-1','skylight-2','deck-1','deck-2','crew-1','crew-2','crew-3','truck-1','material-asphalt','material-cedar','material-metal-1','material-metal-2','material-luxury','material-synthetic','prj-asphalt-before','prj-asphalt-after','prj-metal-roof-before','prj-metal-roof-after','prj-cedar-shake-before','prj-cedar-shake-after','prj-siding-before','prj-siding-after','prj-gutters-before','prj-gutters-after','prj-deck-before','prj-deck-after'].map(IMG);
+
+/* ---------- O QUE PRECISA MUDAR (alertas por página) ---------- */
+const FLAGS={
+  "/":[["✅ Home nova honesta (hero + selos + fundadores + reviews honesto)","ok"],["Seção 'Recent Projects' ainda tem preços INVENTADOS (Kirkland $28.450…) — trocar por obras reais ou remover"],["Foto dos fundadores = placeholder (trocar pela foto da equipe)","note"]],
+  "/why-skyve":[["Confirmar que todo claim é verdadeiro","note"],["Nenhum número inventado (reviews/anos/projetos)"]],
+  "/services":[["Lista = tudo que a Skyve realmente faz?","note"]],
+  "/services/roof-replacement":[["Hero traz '4.9 · 700+ reviews · 15+ anos · 1.200+ projetos' INVENTADOS — remover/trocar por selos honestos"],["Sem garantia GAF (ainda não temos)"]],
+  "/projects":[["Projetos com PREÇOS e cidades INVENTADOS — trocar por obras reais ou marcar como exemplos"]],
+  "/reviews":[["REVIEWS FALSOS (Jason M., Sarah T., Mark R., Emily K.) — substituir pela versão honesta (empresa nova, Google em verificação)"]],
+  "/about":[["São as pessoas reais (Andre + Fabricio)? história (20+ anos) certa?","note"],["Fotos reais ou placeholder?","note"]],
+  "/contact":[["Telefone, e-mail (fabricio@skyvewa.com) e endereço corretos","note"],["Formulário vai pro CRM Verascor / e-mail?"]],
+  "/licenses-insurance":[["Licença #SKYVERE905BN exata; seguro real","note"],["Sem claim de certificação que não temos (ex: GAF Master Elite)"]],
+  "/warranty":[["Remover qualquer garantia GAF/StainGuard (não somos certificados ainda)"],["25 anos de workmanship — termos corretos","note"]],
+  "/faq":[["Respostas verdadeiras, sem número inflado","note"]],
+  "/financing":[["Sem parceiro de financiamento ainda — não prometer financiamento; ajustar pra 'em breve'"]],
+  "/service-area":[["Cidades certas (King & Snohomish)","note"]],
+  "/legal/privacy":[["Nome legal: Skyve Roofing & Exteriors LLC; contato certo","note"]],
+  "/legal/terms":[["Nome legal correto; sem placeholder de template","note"]],
+  "/estimate/instant":[["O lead precisa chegar no CRM da Verascor (ou e-mail) — confirmar destino"],["Sem promessa de 'preço instantâneo' que ainda não existe"]],
+  "/free-estimate":[["Landing paga → CTA leva ao /estimate/instant","note"],["noindex ligado"]],
+};
+function getFlags(r){
+  if(FLAGS[r])return FLAGS[r];
+  if(/^\/roofing-.*-wa$/.test(r))return [["TEMPLATE de cidade — nome/bairros corretos","note"],["Sem número inventado no hero"],["Conteúdo não soa 'spam de SEO' duplicado","note"]];
+  if(r.startsWith('/services/'))return [["Hero pode ter números inventados (reviews/anos/projetos) — conferir e remover"],["A Skyve realmente faz esse serviço?","note"]];
+  if(r.startsWith('/materials/'))return [["Hero pode ter números inventados — conferir"],["Sem claim de certificação de fabricante que não temos"]];
+  if(r.startsWith('/exteriors/'))return [["A Skyve faz esse serviço (deck/siding/gutters/skylight/pintura)?","note"],["Sem número inflado"]];
+  if(r.startsWith('/legal/'))return [["Nome legal: Skyve Roofing & Exteriors LLC","note"],["Contato/e-mail corretos","note"]];
+  if(r.startsWith('/warranty'))return [["Sem garantia GAF (não temos ainda)"],["25 anos workmanship correto","note"]];
+  if(r.startsWith('/portal'))return [["Portal do cliente (Fase 2, roda na Verascor) — revisar na rodada seguinte","note"]];
+  return [["Copy verdadeira, sem número inflado","note"],["Links funcionam; fotos certas","note"]];
+}
+function showFlags(){
+  if(!curRoute)return;
+  const fl=getFlags(curRoute);
+  const clean=fl.every(f=>f[1]==='ok'||f[1]==='note');
+  let h='<div class="flags'+(clean?' clean':'')+'"><div class="fh">'+(clean?'✓ Revisar nesta página':'⚠ O que precisa mudar aqui')+'</div><ul>';
+  fl.forEach(f=>{h+='<li class="'+(f[1]||'')+'">'+f[0]+'</li>';});
+  h+='</ul></div><div class="ins-empty" style="padding-top:0">Clique num <b>texto</b> na página pra editar, ou numa <b>imagem</b> pra trocar. Suas mudanças aparecem no contador lá em cima.</div>';
+  $('#insp').innerHTML=h;
+}
+
+let curRoute=null, fields=[], changes={}, selIdx=-1, fdoc=null, flt='all';
+const frame=$('#frame');
+function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),2600);}
+function updateBadge(){$('#badge').textContent=Object.keys(changes).length;}
+
+/* ---------- page list ---------- */
+function renderPages(q){
+  q=(q||'').toLowerCase();
+  const onlyLive=$('#onlyLive').checked;
+  const bySec={};PAGES.forEach(p=>{(bySec[p.s]=bySec[p.s]||[]).push(p);});
+  $('#liveCount').textContent='('+PAGES.filter(p=>p.live).length+')';
+  let h='';
+  SEC_ORDER.forEach(sec=>{
+    const list=(bySec[sec]||[]).filter(p=>(p.r.includes(q)||p.t.toLowerCase().includes(q))&&(!onlyLive||p.live));
+    if(!list.length)return;
+    h+='<div class="seclab">'+sec+'</div>';
+    list.forEach(p=>{
+      const fl=getFlags(p.r);const warns=fl.filter(f=>!f[1]).length;
+      h+='<button class="pg'+(p.r===curRoute?' on':'')+'" data-r="'+p.r+'">'+
+        (p.live?'<span class="star" title="vai ao ar">★</span>':'')+
+        '<span class="lab">'+p.t.replace(/</g,'&lt;')+'<span class="r">'+p.r+'</span></span>'+
+        (warns?'<span class="warnc" title="alertas">'+warns+'</span>':'')+'</button>';
+    });
+  });
+  $('#plist').innerHTML=h||'<p class="small">Nada encontrado.</p>';
+}
+$('#plist').addEventListener('click',e=>{const b=e.target.closest('.pg');if(b)loadPage(b.dataset.r);});
+$('#psearch').addEventListener('input',e=>renderPages(e.target.value));
+$('#onlyLive').addEventListener('change',()=>renderPages($('#psearch').value));
+$('#cgo').addEventListener('click',()=>{const v=$('#cpath').value.trim();if(v)loadPage(v);});
+
+/* ---------- load page (strip scripts to stop React hydration) ---------- */
+function loadPage(route){
+  if(route.length>1&&route.endsWith('/'))route=route.slice(0,-1);
+  curRoute=route; changes={}; fields=[]; selIdx=-1; updateBadge();
+  $('#curname').textContent=route;
+  renderPages($('#psearch').value);
+  $('#insp').innerHTML='<div class="ins-empty">Carregando <b>'+route+'</b>…</div>';
+  const url=route+(route==='/'?'':'/');
+  fetch(url,{cache:'no-store'}).then(r=>{if(!r.ok)throw new Error('HTTP '+r.status);return r.text();}).then(html=>{
+    html=html.replace(/<script[\s\S]*?<\/script>/gi,'').replace(/<script[^>]*\/>/gi,'');
+    frame.srcdoc=html;
+  }).catch(e=>{
+    $('#insp').innerHTML='<div class="ins-empty">Não consegui carregar <b>'+route+'</b>.<br><br>'+e.message+'<br><br>O Studio precisa rodar na <b>mesma origem</b> do site. Abra por <code>http://localhost:3021/skyve-studio.html</code> (com o dev server no ar).</div>';
+  });
+}
+frame.addEventListener('load',initFrame);
+
+/* ---------- field tagging ---------- */
+function initFrame(){
+  fdoc=frame.contentDocument; if(!fdoc||!curRoute)return;
+  try{
+    const st=fdoc.createElement('style');st.id='fxs';
+    st.textContent='[data-fx]{outline:1px dashed transparent;outline-offset:1px}[data-fx][contenteditable]:hover{outline-color:#0b6792;cursor:text}img[data-fx]:hover{outline:2px solid #ff8a3d;cursor:pointer}.fx-sel{outline:2px solid #0b6792 !important}[contenteditable]:focus{outline:2px solid #0b6792 !important}';
+    fdoc.head.appendChild(st);
+    fdoc.addEventListener('click',e=>{const a=e.target.closest('a');if(a)e.preventDefault();},true);
+    fields=[];let idx=0;
+    $$('body *',fdoc).forEach(el=>{
+      const tag=el.tagName.toLowerCase();
+      if(['script','style','svg','path','use','br','hr','iframe','input','textarea','select','option','noscript'].includes(tag))return;
+      if(el.closest('svg'))return;
+      if(tag==='img'){el.setAttribute('data-fx',idx);fields.push({i:idx,type:'img',tag,el,orig:{src:el.getAttribute('src')},label:el.getAttribute('alt')||'(imagem)'});idx++;return;}
+      let txt='';el.childNodes.forEach(n=>{if(n.nodeType===3&&n.textContent.trim())txt+=n.textContent;});
+      if(txt.trim().length){el.setAttribute('data-fx',idx);el.setAttribute('contenteditable','true');el.setAttribute('spellcheck','false');fields.push({i:idx,type:'text',tag,el,orig:el.innerHTML,label:txt.trim().slice(0,70)});idx++;}
+    });
+    fields.forEach(fd=>{
+      if(fd.type==='text'){fd.el.addEventListener('focus',()=>selectField(fd.i,true));fd.el.addEventListener('input',()=>recordText(fd));}
+      else fd.el.addEventListener('click',ev=>{ev.stopPropagation();selectField(fd.i);});
+    });
+    $('#count').textContent='('+fields.length+')';
+    buildFieldList();
+    if(selIdx<0)showFlags();
+  }catch(e){console.error(e);}
+}
+
+/* ---------- fields list ---------- */
+$$('.fl-filter button').forEach(b=>b.addEventListener('click',()=>{$$('.fl-filter button').forEach(x=>x.classList.remove('on'));b.classList.add('on');flt=b.dataset.f;buildFieldList();}));
+function buildFieldList(){
+  let h='';
+  fields.forEach(fd=>{
+    if(flt==='text'&&fd.type!=='text')return;
+    if(flt==='img'&&fd.type!=='img')return;
+    const changed=changes[fd.i]?' changed':'';
+    h+='<button class="field'+changed+(fd.i===selIdx?' on':'')+'" data-i="'+fd.i+'"><span class="tg '+(fd.type==='img'?'img':'')+'">'+(fd.type==='img'?'IMG':fd.tag)+'</span><span class="tx">'+fd.label.replace(/</g,'&lt;')+'</span><span class="ch"></span></button>';
+  });
+  $('#flist').innerHTML=h||'<p class="small">Carregue uma página.</p>';
+}
+$('#flist').addEventListener('click',e=>{const b=e.target.closest('.field');if(b)selectField(+b.dataset.i);});
+
+/* ---------- select ---------- */
+function selectField(i,fromFocus){
+  selIdx=i;const fd=fields[i];if(!fd)return;
+  $$('.fx-sel',fdoc).forEach(e=>e.classList.remove('fx-sel'));
+  fd.el.classList.add('fx-sel');
+  if(!fromFocus)fd.el.scrollIntoView({behavior:'smooth',block:'center'});
+  $$('#flist .field').forEach(b=>b.classList.toggle('on',+b.dataset.i===i));
+  if(fd.type==='text'){if(!fromFocus)setTimeout(()=>{try{fd.el.focus();}catch(e){}},60);inspText(fd);}
+  else inspImage(fd);
+}
+
+/* ---------- text ---------- */
+function recordText(fd){
+  if(fd.el.innerHTML!==fd.orig)changes[fd.i]={type:'text',tag:fd.tag,old:stripTags(fd.orig),new:stripTags(fd.el.innerHTML)};
+  else delete changes[fd.i];
+  updateBadge();markChanged(fd.i);
+}
+function stripTags(h){const d=document.createElement('div');d.innerHTML=h;return d.textContent.trim();}
+function markChanged(i){const b=$('#flist .field[data-i="'+i+'"]');if(b)b.classList.toggle('changed',!!changes[i]);}
+function inspText(fd){
+  $('#insp').innerHTML='<div class="ins-h">Campo de texto</div><div class="ins-b">'+
+    '<div class="kv">Tag: <b>&lt;'+fd.tag+'&gt;</b></div>'+
+    '<div class="small">Edite direto na página (está selecionado) ou aqui embaixo.</div>'+
+    '<div class="lab">Conteúdo</div><textarea class="ta" id="ta"></textarea>'+
+    '<button class="reset" id="rst">↺ Restaurar original</button></div>';
+  const ta=$('#ta');ta.value=fd.el.innerText;
+  ta.addEventListener('input',()=>{fd.el.innerHTML=ta.value.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/\n/g,'<br>');recordText(fd);});
+  $('#rst').addEventListener('click',()=>{fd.el.innerHTML=fd.orig;ta.value=fd.el.innerText;recordText(fd);});
+}
+
+/* ---------- image ---------- */
+function inspImage(fd){
+  const cur=fd.el.getAttribute('src')||'';
+  let g='';ASSETS.forEach(a=>{g+='<img src="'+a+'" data-src="'+a+'" class="'+(cur===a?'on':'')+'" title="'+a.split('/').pop()+'" loading="lazy">';});
+  $('#insp').innerHTML='<div class="ins-h">Imagem</div><div class="ins-b">'+
+    '<img class="thumb" id="ithumb" src="'+cur+'" alt="">'+
+    '<div class="lab">Trocar por (galeria Skyve)</div><div class="gal" id="gal">'+g+'</div>'+
+    '<button class="ibtn" id="up">⬆ Enviar imagem do PC…</button><input type="file" id="upf" accept="image/*" hidden>'+
+    '<div class="lab">…ou colar URL / caminho</div><input class="inp" id="iurl" placeholder="/images/…  ou  https://…">'+
+    '<div class="lab">Enquadramento</div><div class="seg" id="fit">'+['cover','contain','fill','none'].map(v=>'<button data-v="'+v+'">'+v+'</button>').join('')+'</div>'+
+    '<div class="lab">Posição — horizontal</div><input class="rng" id="px" type="range" min="0" max="100" value="50">'+
+    '<div class="lab">Posição — vertical</div><input class="rng" id="py" type="range" min="0" max="100" value="50">'+
+    '<button class="reset" id="irst">↺ Restaurar original</button>'+
+    '<div class="small" id="upwarn"></div></div>';
+  const setSrc=(s,uploaded)=>{fd.el.setAttribute('src',s);$('#ithumb').src=s;$$('#gal img').forEach(im=>im.classList.toggle('on',im.dataset.src===s));changes[fd.i]={type:'image',alt:fd.label,src:uploaded?'(uploaded data-URI)':s,fit:fd.el.style.objectFit||'',pos:fd.el.style.objectPosition||''};updateBadge();markChanged(fd.i);$('#upwarn').innerHTML=uploaded?'⚠ Imagem embutida como data-URI (pesada). Pra produção, prefira a galeria ou uma URL de arquivo.':'';};
+  $('#gal').addEventListener('click',e=>{const im=e.target.closest('img');if(im)setSrc(im.dataset.src,false);});
+  $('#up').addEventListener('click',()=>$('#upf').click());
+  $('#upf').addEventListener('change',e=>{const f=e.target.files[0];if(!f)return;const rd=new FileReader();rd.onload=()=>setSrc(rd.result,true);rd.readAsDataURL(f);});
+  $('#iurl').addEventListener('change',e=>{if(e.target.value.trim())setSrc(e.target.value.trim(),false);});
+  const recFP=()=>{changes[fd.i]=Object.assign(changes[fd.i]||{type:'image',alt:fd.label,src:fd.el.getAttribute('src')},{fit:fd.el.style.objectFit||'',pos:fd.el.style.objectPosition||''});updateBadge();markChanged(fd.i);};
+  $('#fit').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;$$('#fit button').forEach(x=>x.classList.remove('on'));b.classList.add('on');fd.el.style.objectFit=b.dataset.v;recFP();});
+  const applyPos=()=>{fd.el.style.objectPosition=$('#px').value+'% '+$('#py').value+'%';recFP();};
+  $('#px').addEventListener('input',applyPos);$('#py').addEventListener('input',applyPos);
+  $('#irst').addEventListener('click',()=>{fd.el.setAttribute('src',fd.orig.src);fd.el.style.objectFit='';fd.el.style.objectPosition='';delete changes[fd.i];updateBadge();markChanged(fd.i);inspImage(fd);});
+}
+
+/* ---------- device / tabs ---------- */
+$$('.devs button').forEach(b=>b.addEventListener('click',()=>{$$('.devs button').forEach(x=>x.classList.remove('on'));b.classList.add('on');$('#fw').className='frameWrap'+(b.dataset.d==='desk'?'':' '+b.dataset.d);}));
+$$('.tabs button').forEach(b=>b.addEventListener('click',()=>{$$('.tabs button').forEach(x=>x.classList.remove('on'));b.classList.add('on');$('#pane-pages').classList.toggle('hide',b.dataset.t!=='pages');$('#pane-fields').classList.toggle('hide',b.dataset.t!=='fields');}));
+
+/* ---------- export ---------- */
+$('#expjson').addEventListener('click',()=>{
+  if(!curRoute){toast('Abra uma página primeiro.');return;}
+  const out={page:curRoute,changes:Object.entries(changes).map(([i,c])=>Object.assign({field:+i,fieldLabel:(fields[i]?fields[i].label:'')},c))};
+  const b=new Blob([JSON.stringify(out,null,2)],{type:'application/json'});const u=URL.createObjectURL(b);
+  const a=document.createElement('a');a.href=u;a.download='skyve__'+curRoute.replace(/^\//,'').replace(/\//g,'__')+'.changes.json';a.click();URL.revokeObjectURL(u);
+  toast(out.changes.length+' alteração(ões) exportada(s).');
+});
+window.addEventListener('beforeunload',e=>{if(Object.keys(changes).length){e.preventDefault();e.returnValue='';}});
+
+renderPages('');
+</script>
+</body></html>

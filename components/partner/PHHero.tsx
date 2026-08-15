@@ -1,0 +1,71 @@
+import { Play, Trophy } from "lucide-react";
+import { Photo } from "@/components/shared/Photo";
+import { Icon } from "@/components/shared/Icon";
+import { PH_HERO } from "@/lib/partner-data";
+
+export function PHHero() {
+  const h = PH_HERO;
+  return (
+    <section className="bg-clear pb-8 pt-2">
+      <div className="container-skyve grid gap-8 lg:grid-cols-[1fr_1.05fr] lg:items-center">
+        {/* Left */}
+        <div>
+          <p className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-ridge">
+            <span className="text-accent">{h.level}</span>
+            <span className="text-ink-50">◇</span>
+            {h.eyebrow}
+          </p>
+          <h1 className="mt-3 font-serif text-4xl font-extrabold leading-[1.05] text-horizon sm:text-5xl">
+            {h.titleLines.map((l) => (
+              <span key={l} className="block">{l}</span>
+            ))}
+          </h1>
+          <p className="mt-4 max-w-md text-sm leading-relaxed text-ink-70">{h.desc}</p>
+
+          <div className="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-4">
+            {h.features.map((f) => (
+              <div key={f.title}>
+                <Icon name={f.icon} className="h-5 w-5 text-ridge" />
+                <p className="mt-2 text-xs font-bold text-horizon">{f.title}</p>
+                <p className="text-[10px] leading-snug text-ink-50">{f.desc}</p>
+              </div>
+            ))}
+          </div>
+
+          <div className="mt-7 flex flex-wrap gap-3">
+            <a href="#apply" className="inline-flex items-center gap-2 rounded-lg bg-horizon-deep px-6 py-3.5 text-sm font-semibold text-clear shadow-card transition-colors hover:bg-horizon">
+              Apply to Become a Partner
+            </a>
+            <a href="#" className="inline-flex items-center gap-2 rounded-lg border border-ridge/30 px-6 py-3.5 text-sm font-semibold text-ridge transition-colors hover:border-ridge hover:bg-mist-soft">
+              <Play className="h-4 w-4" /> How It Works
+            </a>
+          </div>
+        </div>
+
+        {/* Right */}
+        <div className="relative">
+          <Photo src={h.image} alt="Pro partner hub" className="aspect-[16/10] rounded-2xl shadow-elevated" />
+          <div className="mt-4 rounded-2xl bg-horizon-deep p-6 text-clear shadow-elevated lg:absolute lg:bottom-4 lg:right-4 lg:mt-0 lg:w-[88%]">
+            <div className="flex items-center gap-2">
+              <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-accent/20 ring-1 ring-accent/40">
+                <Trophy className="h-4 w-4 text-accent" />
+              </span>
+              <div>
+                <p className="text-sm font-bold">{h.success.title}</p>
+                <p className="text-[11px] text-mist-soft/60">{h.success.subtitle}</p>
+              </div>
+            </div>
+            <div className="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-4">
+              {h.success.stats.map((s) => (
+                <div key={s.label}>
+                  <p className="font-serif text-xl font-extrabold text-clear">{s.value}</p>
+                  <p className="text-[10px] leading-snug text-mist-soft/60">{s.label}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
