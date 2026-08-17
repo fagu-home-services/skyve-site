@@ -11,7 +11,7 @@ export const ESTIMATE_CONFIG = {
   /** Solar → real-report calibration. Google Solar under-measures ~5-7% vs
    *  EagleView/Hover (worse on steep roofs — it misses small/steep facets).
    *  Derived from 9 real Skyve measurement reports (2026-08). */
-  solarCalibration: { flat: 1.07, shallow: 1.07, medium: 1.07, steep: 1.15 },
+  solarCalibration: { flat: 1.0, shallow: 1.05, medium: 1.07, steep: 1.15 },
 
   /** Labor multiplier by slope (steeper = more labor/safety/staging). */
   slopeMultiplier: { flat: 1.0, shallow: 1.0, medium: 1.06, steep: 1.15 },
@@ -53,9 +53,10 @@ const M2_TO_FT2 = 10.7639;
 
 /** Map an average roof pitch (degrees) to a slope bucket. */
 export function pitchToSlope(pitchDegrees: number): SlopeKey {
-  if (pitchDegrees < 7) return "flat";
+  // Roofing convention: flat <2/12, low 2–4/12, standard 4–7/12, steep 7/12+.
+  if (pitchDegrees < 10) return "flat";
   if (pitchDegrees < 20) return "shallow";
-  if (pitchDegrees < 34) return "medium";
+  if (pitchDegrees < 30) return "medium"; // 30° ≈ 7/12
   return "steep";
 }
 
