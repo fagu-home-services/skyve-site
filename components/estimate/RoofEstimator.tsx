@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { MapPin, ArrowRight, Loader2, Lock, CheckCircle2, Phone, ShieldCheck } from "lucide-react";
 import {
   computeEstimate, SLOPE_LABELS, COMPLEXITY_LABELS, type SlopeKey, type Complexity, type TierEstimate,
@@ -53,6 +53,26 @@ export function RoofEstimator() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [contact, setContact] = useState({ firstName: "", lastName: "", phone: "", email: "", _hp: "" });
+  const [suggestions, setSuggestions] = useState<string[]>([]);
+  const acRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  function onAddressChange(v: string) {
+    setAddress(v);
+    if (acRef.current) clearTimeout(acRef.current);
+    if (v.trim().length < 4) {
+      setSuggestions([]);
+      return;
+    }
+    acRef.current = setTimeout(async () => {
+      try {
+        const r = await fetch(`/api/places?q=${encodeURIComponent(v)}`);
+        const d = (await r.json()) as { predictions?: { description: string }[] };
+        setSuggestions((d.predictions || []).map((p) => p.description));
+      } catch {
+        setSuggestions([]);
+      }
+    }, 250);
+  }
 
   // tiers recomputed client-side when the user changes slope (no extra API call)
   const tiers = est ? computeEstimate(est.areaMeters2, slope, est.facets).tiers : null;
@@ -122,23 +142,43 @@ export function RoofEstimator() {
         <div className="container-skyve text-center">
           <h1 className="font-serif text-4xl font-extrabold sm:text-5xl">What will my roof cost?</h1>
           <p className="mt-3 text-lg text-mist-soft/85">Enter your address for an instant, approximate estimate.</p>
-          <form onSubmit={start} className="mx-auto mt-8 flex max-w-2xl flex-col gap-3 sm:flex-row">
-            <div className="flex flex-1 items-center gap-2 rounded-lg bg-clear px-4">
-              <MapPin className="h-5 w-5 shrink-0 text-ink-50" />
-              <input
-                value={address}
-                onChange={(e) => setAddress(e.target.value)}
-                placeholder="Enter your street address"
-                className="w-full bg-transparent py-4 text-sm text-ink-90 outline-none placeholder:text-ink-50"
-              />
+          <form onSubmit={start} className="mx-auto mt-8 max-w-2xl">
+            <div className="flex flex-col gap-3 sm:flex-row">
+              <div className="relative flex-1">
+                <div className="flex items-center gap-2 rounded-lg bg-clear px-4">
+                  <MapPin className="h-5 w-5 shrink-0 text-ink-50" />
+                  <input
+                    value={address}
+                    onChange={(e) => onAddressChange(e.target.value)}
+                    placeholder="Enter your street address"
+                    autoComplete="off"
+                    className="w-full bg-transparent py-4 text-sm text-ink-90 outline-none placeholder:text-ink-50"
+                  />
+                </div>
+                {suggestions.length > 0 && (
+                  <ul className="absolute left-0 right-0 top-full z-10 mt-1 overflow-hidden rounded-lg border border-mist bg-clear text-left shadow-elevated">
+                    {suggestions.map((s) => (
+                      <li key={s}>
+                        <button
+                          type="button"
+                          onClick={() => { setAddress(s); setSuggestions([]); }}
+                          className="flex w-full items-center gap-2 px-4 py-2.5 text-sm text-ink-90 hover:bg-mist-soft"
+                        >
+                          <MapPin className="h-4 w-4 shrink-0 text-ink-50" /> <span className="truncate">{s}</span>
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+              <button
+                type="submit"
+                disabled={loading}
+                className="inline-flex items-center justify-center gap-2 rounded-lg bg-accent px-8 py-4 text-sm font-bold text-clear shadow-card transition-colors hover:bg-accent-hover disabled:opacity-70"
+              >
+                {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Start"}
+              </button>
             </div>
-            <button
-              type="submit"
-              disabled={loading}
-              className="inline-flex items-center justify-center gap-2 rounded-lg bg-accent px-8 py-4 text-sm font-bold text-clear shadow-card transition-colors hover:bg-accent-hover disabled:opacity-70"
-            >
-              {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Start"}
-            </button>
           </form>
           {error && <p className="mx-auto mt-4 max-w-2xl text-sm text-accent">{error}</p>}
           <p className="mx-auto mt-6 max-w-xl text-xs text-mist-soft/60">

@@ -19,7 +19,7 @@ export const dynamic = "force-dynamic";
 
 const KEY = process.env.GOOGLE_MAPS_API_KEY || "";
 
-type Body = { address?: string; lat?: number; lng?: number; slope?: SlopeKey };
+type Body = { address?: string; lat?: number; lng?: number; slope?: SlopeKey; debug?: boolean };
 
 async function geocode(address: string): Promise<{ lat: number; lng: number; formatted: string } | null> {
   const url = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(address)}&key=${KEY}`;
@@ -33,15 +33,25 @@ async function geocode(address: string): Promise<{ lat: number; lng: number; for
   return { lat: hit.geometry.location.lat, lng: hit.geometry.location.lng, formatted: hit.formatted_address };
 }
 
-type SolarSegment = { pitchDegrees?: number; stats?: { areaMeters2?: number } };
+type SolarSegment = { pitchDegrees?: number; stats?: { areaMeters2?: number; groundAreaMeters2?: number } };
 type SolarResponse = {
+  imageryQuality?: string;
   solarPotential?: {
-    wholeRoofStats?: { areaMeters2?: number };
+    wholeRoofStats?: { areaMeters2?: number; groundAreaMeters2?: number };
     roofSegmentStats?: SolarSegment[];
   };
 };
 
-async function solar(lat: number, lng: number): Promise<{ areaMeters2: number; avgPitch: number; facets: number } | null> {
+type SolarOut = {
+  areaMeters2: number;
+  groundAreaMeters2: number;
+  avgPitch: number;
+  facets: number;
+  imageryQuality: string;
+  segments: { pitch: number; area: number }[];
+};
+
+async function solar(lat: number, lng: number): Promise<SolarOut | null> {
   const url =
     `https://solar.googleapis.com/v1/buildingInsights:findClosest` +
     `?location.latitude=${lat}&location.longitude=${lng}&requiredQuality=LOW&key=${KEY}`;
@@ -55,14 +65,25 @@ async function solar(lat: number, lng: number): Promise<{ areaMeters2: number; a
   // Area-weighted average pitch across roof segments.
   let wSum = 0;
   let pSum = 0;
+  let groundSum = 0;
+  const segments: { pitch: number; area: number }[] = [];
   for (const s of segs) {
     const a = s.stats?.areaMeters2 || 0;
     const p = s.pitchDegrees ?? 0;
     wSum += a;
     pSum += a * p;
+    groundSum += s.stats?.groundAreaMeters2 || 0;
+    segments.push({ pitch: Math.round(p * 10) / 10, area: Math.round(a) });
   }
   const avgPitch = wSum > 0 ? pSum / wSum : 22; // fallback ~medium
-  return { areaMeters2: area, avgPitch, facets: segs.length || 1 };
+  return {
+    areaMeters2: area,
+    groundAreaMeters2: sp?.wholeRoofStats?.groundAreaMeters2 || groundSum,
+    avgPitch,
+    facets: segs.length || 1,
+    imageryQuality: data.imageryQuality || "?",
+    segments,
+  };
 }
 
 export async function POST(req: Request) {
@@ -131,8 +152,22 @@ export async function POST(req: Request) {
       lng,
       areaMeters2: roof.areaMeters2,
       suggestedSlope: suggested,
-      mapUrl: `/api/roof-image?lat=${lat}&lng=${lng}`,
+      mapUrl: `/api/roof-image/?lat=${lat}&lng=${lng}`,
       ...est,
+      ...(body.debug
+        ? {
+            raw: {
+              areaMeters2: Math.round(roof.areaMeters2),
+              areaSqftSloped: Math.round(roof.areaMeters2 * 10.7639),
+              groundAreaMeters2: Math.round(roof.groundAreaMeters2),
+              groundSqft: Math.round(roof.groundAreaMeters2 * 10.7639),
+              avgPitch: Math.round(roof.avgPitch * 10) / 10,
+              facets: roof.facets,
+              imageryQuality: roof.imageryQuality,
+              segments: roof.segments,
+            },
+          }
+        : {}),
     });
   } catch (e) {
     console.error("[estimate] error", (e as Error).message);
