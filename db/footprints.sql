@@ -11,7 +11,9 @@
 --   • ST_DWithin(geog, ...)  -> radius search, uses the GiST index
 --   • geog::geometry         -> polygon coordinates for drawing on the map
 
-create extension if not exists postgis;
+-- PostGIS lives in the `extensions` schema on Supabase; keep it on the path.
+create extension if not exists postgis with schema extensions;
+set search_path = public, extensions;
 
 create table if not exists buildings (
   id       bigint generated always as identity primary key,
@@ -50,7 +52,7 @@ returns table (
 language sql
 stable
 security definer
-set search_path = public
+set search_path = public, extensions
 as $$
   select
     b.area_m2,

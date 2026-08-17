@@ -30,6 +30,7 @@ const client = new pg.Client({ connectionString: url, ssl: { rejectUnauthorized:
 
 async function main() {
   await client.connect();
+  await client.query("set search_path = public, extensions;"); // PostGIS ST_* live in extensions
   console.log("connected. resetting tables…");
   await client.query("truncate buildings_staging;");
   await client.query("truncate buildings;");
