@@ -183,6 +183,7 @@ export async function POST(req: Request) {
     const plat = lat;
     const plng = lng;
     let fpDebug: { areaM2: number; dQuery: number; dMain: number; added: boolean }[] | null = null;
+    let mainFootprintM2 = 0;
     try {
       const buildings = await buildingsNear(plat, plng, 28);
       if (buildings.length >= 1) {
@@ -190,6 +191,7 @@ export async function POST(req: Request) {
           .map((b) => ({ b, d: distMeters([plat, plng], b.centroid) }))
           .sort((a, z) => a.d - z.d);
         const mainFp = withDist[0].b;
+        mainFootprintM2 = mainFp.areaM2;
         structures[0].polygon = ringToPoly(mainFp.geojson); // draw the house outline
         let detached = 0;
         fpDebug = [];
@@ -216,6 +218,16 @@ export async function POST(req: Request) {
       }
     } catch {
       /* footprint lookup failed → main only */
+    }
+
+    // Low-confidence guard: when the building's real footprint is much larger than
+    // the roof Solar could measure, the imagery is partial (heavy tree cover) or
+    // it's a multi-unit building (the address is one unit of many). Either way the
+    // number would mislead — send them to a free in-person measurement instead.
+    // Calibrated on real reports: houses sit ~1.0-1.2; a condo block hit 3.5.
+    const solarGroundM2 = roof.groundAreaMeters2;
+    if (mainFootprintM2 && solarGroundM2 && mainFootprintM2 / solarGroundM2 > 1.5) {
+      return NextResponse.json({ ok: true, coverage: false, reason: "partial_measure", address: formatted, lat, lng });
     }
 
     const suggested = pitchToSlope(roof.avgPitch);
