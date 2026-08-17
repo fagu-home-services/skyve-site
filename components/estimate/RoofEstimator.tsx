@@ -16,6 +16,7 @@ type Structure = {
   kind: "main" | "secondary" | "manual";
   areaSqft: number;
   areaM2: number;
+  polygon?: string; // "lat,lng;lat,lng;…" outline for the map overlay (main + detected)
 };
 
 type Est = {
@@ -105,6 +106,16 @@ export function RoofEstimator() {
   const includedM2 = items.filter((i) => i.included).reduce((s, i) => s + i.areaM2, 0);
   const result = est ? computeEstimate(includedM2 || est.areaMeters2, slope, est.facets) : null;
   const tiers = result?.tiers ?? null;
+
+  // Satellite map with the included structures outlined — rebuilds as the user
+  // toggles structures (the key stays server-side in the roof-image proxy).
+  const mapUrl = est
+    ? `/api/roof-image/?lat=${est.lat}&lng=${est.lng}` +
+      items
+        .filter((i) => i.included && i.polygon)
+        .map((i) => `&poly=${encodeURIComponent(i.polygon as string)}`)
+        .join("")
+    : null;
 
   function toggleItem(id: number) {
     setItems((xs) => xs.map((i) => (i.id === id ? { ...i, included: !i.included } : i)));
@@ -274,11 +285,11 @@ export function RoofEstimator() {
             <MapPin className="h-4 w-4 text-ridge" /> <span className="truncate">{est.address}</span>
           </div>
 
-          {/* Map */}
+          {/* Map with the roof outlined */}
           <div className="relative mt-4 overflow-hidden rounded-xl border border-mist bg-horizon-deep/5">
-            {est.mapUrl ? (
+            {mapUrl ? (
               // eslint-disable-next-line @next/next/no-img-element
-              <img src={est.mapUrl} alt="Satellite view of the roof" className="aspect-[16/10] w-full object-cover" />
+              <img src={mapUrl} alt="Satellite view with your roof outlined" className="aspect-[16/10] w-full object-cover" />
             ) : (
               <div className="flex aspect-[16/10] w-full flex-col items-center justify-center gap-2 text-center text-ink-50">
                 <MapPin className="h-8 w-8" />
@@ -290,6 +301,12 @@ export function RoofEstimator() {
               <span className="absolute left-3 top-3 rounded-md bg-accent px-2 py-1 text-xs font-bold text-clear">SAMPLE</span>
             )}
           </div>
+          {items.some((i) => i.included && i.polygon) && (
+            <p className="mt-2 flex items-center justify-center gap-1.5 text-xs text-ink-50">
+              <span className="inline-block h-2.5 w-3.5 rounded-sm border-2 border-[#0f766e] bg-[#14b8a6]/30" />
+              Outlined in teal = the roof we&apos;re measuring
+            </p>
+          )}
 
           {/* Structures editor */}
           <div className="mt-5">

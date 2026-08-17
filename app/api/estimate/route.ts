@@ -89,6 +89,18 @@ async function solar(lat: number, lng: number): Promise<SolarOut | null> {
   };
 }
 
+/** GeoJSON polygon string → "lat,lng;lat,lng;…" for the roof-image overlay. */
+function ringToPoly(geojson?: string): string | undefined {
+  if (!geojson) return undefined;
+  try {
+    const coords = (JSON.parse(geojson) as { coordinates?: number[][][] })?.coordinates?.[0];
+    if (!Array.isArray(coords) || coords.length < 3) return undefined;
+    return coords.map((c) => `${c[1].toFixed(6)},${c[0].toFixed(6)}`).join(";"); // [lng,lat] → "lat,lng"
+  } catch {
+    return undefined;
+  }
+}
+
 export async function POST(req: Request) {
   let body: Body;
   try {
@@ -117,11 +129,13 @@ export async function POST(req: Request) {
       lng: -122.2,
       areaMeters2: areaM2 + shedM2,
       suggestedSlope: suggested,
-      mapUrl: null,
       structures: [
-        { label: "Main roof", kind: "main", areaSqft: Math.round(areaM2 * M2FT), areaM2 },
-        { label: "Structure 2", kind: "secondary", areaSqft: Math.round(shedM2 * M2FT), areaM2: shedM2 },
+        { label: "Main roof", kind: "main", areaSqft: Math.round(areaM2 * M2FT), areaM2,
+          polygon: "47.7601,-122.2003;47.7601,-122.1997;47.7599,-122.1997;47.7599,-122.2003;47.7601,-122.2003" },
+        { label: "Structure 2", kind: "secondary", areaSqft: Math.round(shedM2 * M2FT), areaM2: shedM2,
+          polygon: "47.75982,-122.19965;47.75982,-122.19955;47.75975,-122.19955;47.75975,-122.19965;47.75982,-122.19965" },
       ],
+      mapUrl: `/api/roof-image/?lat=47.76&lng=-122.2`,
       ...est,
     });
   }
@@ -162,7 +176,7 @@ export async function POST(req: Request) {
     //    missed. Footprint ÷ cos(pitch) ≈ sloped roof area for those. ──
     const cosPitch = Math.cos((roof.avgPitch * Math.PI) / 180) || 1;
     const M2FT = 10.7639;
-    const structures: { label: string; kind: "main" | "secondary"; areaSqft: number; areaM2: number }[] = [
+    const structures: { label: string; kind: "main" | "secondary"; areaSqft: number; areaM2: number; polygon?: string }[] = [
       { label: "Main roof", kind: "main", areaSqft: Math.round(roof.areaMeters2 * M2FT), areaM2: Math.round(roof.areaMeters2) },
     ];
     let totalSlopedM2 = roof.areaMeters2;
@@ -176,6 +190,7 @@ export async function POST(req: Request) {
           .map((b) => ({ b, d: distMeters([plat, plng], b.centroid) }))
           .sort((a, z) => a.d - z.d);
         const mainFp = withDist[0].b;
+        structures[0].polygon = ringToPoly(mainFp.geojson); // draw the house outline
         let n = 1;
         fpDebug = [];
         for (let i = 0; i < withDist.length; i++) {
@@ -187,7 +202,7 @@ export async function POST(req: Request) {
             const slopedM2 = b.areaM2 / cosPitch;
             totalSlopedM2 += slopedM2;
             n += 1;
-            structures.push({ label: `Structure ${n}`, kind: "secondary", areaSqft: Math.round(slopedM2 * M2FT), areaM2: Math.round(slopedM2) });
+            structures.push({ label: `Structure ${n}`, kind: "secondary", areaSqft: Math.round(slopedM2 * M2FT), areaM2: Math.round(slopedM2), polygon: ringToPoly(b.geojson) });
           }
           fpDebug.push({ areaM2: Math.round(b.areaM2), dQuery: Math.round(withDist[i].d), dMain: Math.round(dMain), added });
         }
@@ -199,6 +214,11 @@ export async function POST(req: Request) {
     const suggested = pitchToSlope(roof.avgPitch);
     const slope = slopeOverride || suggested;
     const est = computeEstimate(totalSlopedM2, slope, roof.facets);
+    const polyParams = structures
+      .map((s) => s.polygon)
+      .filter((p): p is string => !!p)
+      .map((p) => `&poly=${encodeURIComponent(p)}`)
+      .join("");
     return NextResponse.json({
       ok: true,
       coverage: true,
@@ -209,7 +229,7 @@ export async function POST(req: Request) {
       suggestedSlope: suggested,
       imageryQuality: roof.imageryQuality,
       structures,
-      mapUrl: `/api/roof-image/?lat=${lat}&lng=${lng}`,
+      mapUrl: `/api/roof-image/?lat=${lat}&lng=${lng}${polyParams}`,
       ...est,
       ...(body.debug
         ? {
