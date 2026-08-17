@@ -12,9 +12,12 @@ export const WHY_HERO_FEATURES = [
   { icon: "badge", title: "Real Reviews Real Results" },
 ] as const;
 
+/* No fabricated rating/review count — the company is new. Live pages no longer
+   render score/reviews; a few gated (Phase-2) components still show a star box
+   using these — clean their visuals when those pages are released. */
 export const RATING = {
-  score: "4.9",
-  reviews: "700+ Reviews",
+  score: "25-Yr",
+  reviews: "Workmanship Warranty",
   area: "Across King & Snohomish County",
 };
 
