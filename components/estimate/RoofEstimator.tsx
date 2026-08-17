@@ -153,7 +153,9 @@ export function RoofEstimator() {
           d.structures && d.structures.length
             ? d.structures
             : [{ label: "Main roof", kind: "main", areaSqft: Math.round(d.areaMeters2 * M2_TO_FT2), areaM2: d.areaMeters2 }];
-        setItems(structs.map((s) => ({ ...s, id: idRef.current++, included: true })));
+        // Main roof is on by default; detected detached structures are OFF until
+        // the homeowner opts in (reports are usually house-only).
+        setItems(structs.map((s) => ({ ...s, id: idRef.current++, included: s.kind !== "secondary" })));
         setEst(d);
         setSlope(d.suggestedSlope);
         setStep("review");
@@ -315,7 +317,7 @@ export function RoofEstimator() {
               <span className="text-xs text-ink-50">{items.filter((i) => i.included).length} included</span>
             </div>
             <p className="mt-0.5 text-xs text-ink-50">
-              We add the roof of every building on the lot. Remove any that isn&apos;t yours, or add one we missed.
+              We measure your main roof. If you also want a detached garage or shed quoted, add it below.
             </p>
             <ul className="mt-3 space-y-2">
               {items.map((it) => {
@@ -329,9 +331,7 @@ export function RoofEstimator() {
                   >
                     <div className={`flex min-w-0 items-center gap-2.5 ${it.included ? "" : "opacity-50"}`}>
                       <Icon className="h-4.5 w-4.5 shrink-0 text-ridge" />
-                      <span className={`truncate text-sm font-medium text-ink-90 ${it.included ? "" : "line-through"}`}>
-                        {it.label}
-                      </span>
+                      <span className="truncate text-sm font-medium text-ink-90">{it.label}</span>
                       <span className="shrink-0 text-xs text-ink-50">~{it.areaSqft.toLocaleString()} sq ft</span>
                     </div>
                     {it.kind === "main" ? (
@@ -355,7 +355,7 @@ export function RoofEstimator() {
                         onClick={() => toggleItem(it.id)}
                         className="inline-flex shrink-0 items-center gap-1 rounded-md px-2 py-1 text-xs font-semibold text-ridge hover:bg-ridge/5"
                       >
-                        <Plus className="h-3.5 w-3.5" /> Add back
+                        <Plus className="h-3.5 w-3.5" /> Add
                       </button>
                     )}
                   </li>

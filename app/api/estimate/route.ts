@@ -117,8 +117,8 @@ export async function POST(req: Request) {
     const areaM2 = 210; // ~2,260 sqft sample home
     const suggested: SlopeKey = "medium";
     const slope = slopeOverride || suggested;
-    const shedM2 = 22; // ~240 sq ft detached structure
-    const est = computeEstimate(areaM2 + shedM2, slope, 6); // sample: 6 facets = complex
+    const shedM2 = 22; // ~240 sq ft detached structure (offered, not summed)
+    const est = computeEstimate(areaM2, slope, 6); // default = main roof only
     const M2FT = 10.7639;
     return NextResponse.json({
       ok: true,
@@ -127,12 +127,12 @@ export async function POST(req: Request) {
       address: address || "123 Sample St, Bothell, WA",
       lat: 47.76,
       lng: -122.2,
-      areaMeters2: areaM2 + shedM2,
+      areaMeters2: areaM2,
       suggestedSlope: suggested,
       structures: [
         { label: "Main roof", kind: "main", areaSqft: Math.round(areaM2 * M2FT), areaM2,
           polygon: "47.7601,-122.2003;47.7601,-122.1997;47.7599,-122.1997;47.7599,-122.2003;47.7601,-122.2003" },
-        { label: "Structure 2", kind: "secondary", areaSqft: Math.round(shedM2 * M2FT), areaM2: shedM2,
+        { label: "Detached structure", kind: "secondary", areaSqft: Math.round(shedM2 * M2FT), areaM2: shedM2,
           polygon: "47.75982,-122.19965;47.75982,-122.19955;47.75975,-122.19955;47.75975,-122.19965;47.75982,-122.19965" },
       ],
       mapUrl: `/api/roof-image/?lat=47.76&lng=-122.2`,
@@ -191,20 +191,27 @@ export async function POST(req: Request) {
           .sort((a, z) => a.d - z.d);
         const mainFp = withDist[0].b;
         structures[0].polygon = ringToPoly(mainFp.geojson); // draw the house outline
-        let n = 1;
+        let detached = 0;
         fpDebug = [];
         for (let i = 0; i < withDist.length; i++) {
           const b = withDist[i].b;
           const dMain = distMeters(mainFp.centroid, b.centroid);
-          // outbuilding on the same lot: close to the main house, not a big neighbor
-          const added = i > 0 && dMain <= 14 && b.areaM2 < mainFp.areaM2 * 0.95;
-          if (added) {
+          // A same-lot outbuilding (close, smaller than the house). We OFFER it as
+          // an optional add — NOT summed by default, because reports are usually
+          // house-only and auto-adding overshoots (validated on 11 real reports).
+          const isSecondary = i > 0 && dMain <= 14 && b.areaM2 < mainFp.areaM2 * 0.95;
+          if (isSecondary) {
+            detached += 1;
             const slopedM2 = b.areaM2 / cosPitch;
-            totalSlopedM2 += slopedM2;
-            n += 1;
-            structures.push({ label: `Structure ${n}`, kind: "secondary", areaSqft: Math.round(slopedM2 * M2FT), areaM2: Math.round(slopedM2), polygon: ringToPoly(b.geojson) });
+            structures.push({
+              label: detached === 1 ? "Detached structure" : `Detached structure ${detached}`,
+              kind: "secondary",
+              areaSqft: Math.round(slopedM2 * M2FT),
+              areaM2: Math.round(slopedM2),
+              polygon: ringToPoly(b.geojson),
+            });
           }
-          fpDebug.push({ areaM2: Math.round(b.areaM2), dQuery: Math.round(withDist[i].d), dMain: Math.round(dMain), added });
+          fpDebug.push({ areaM2: Math.round(b.areaM2), dQuery: Math.round(withDist[i].d), dMain: Math.round(dMain), added: isSecondary });
         }
       }
     } catch {
