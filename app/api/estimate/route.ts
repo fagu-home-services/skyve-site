@@ -105,7 +105,9 @@ export async function POST(req: Request) {
     const areaM2 = 210; // ~2,260 sqft sample home
     const suggested: SlopeKey = "medium";
     const slope = slopeOverride || suggested;
-    const est = computeEstimate(areaM2, slope, 6); // sample: 6 facets = complex
+    const shedM2 = 22; // ~240 sq ft detached structure
+    const est = computeEstimate(areaM2 + shedM2, slope, 6); // sample: 6 facets = complex
+    const M2FT = 10.7639;
     return NextResponse.json({
       ok: true,
       mock: true,
@@ -113,9 +115,13 @@ export async function POST(req: Request) {
       address: address || "123 Sample St, Bothell, WA",
       lat: 47.76,
       lng: -122.2,
-      areaMeters2: areaM2,
+      areaMeters2: areaM2 + shedM2,
       suggestedSlope: suggested,
       mapUrl: null,
+      structures: [
+        { label: "Main roof", kind: "main", areaSqft: Math.round(areaM2 * M2FT), areaM2 },
+        { label: "Structure 2", kind: "secondary", areaSqft: Math.round(shedM2 * M2FT), areaM2: shedM2 },
+      ],
       ...est,
     });
   }

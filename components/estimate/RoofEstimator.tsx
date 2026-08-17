@@ -1,12 +1,22 @@
 "use client";
 
 import { useState, useRef } from "react";
-import { MapPin, ArrowRight, Loader2, Lock, CheckCircle2, Phone, ShieldCheck } from "lucide-react";
+import {
+  MapPin, ArrowRight, Loader2, Lock, CheckCircle2, Phone, ShieldCheck,
+  Home, Building2, Plus, Trash2,
+} from "lucide-react";
 import {
   computeEstimate, SLOPE_LABELS, COMPLEXITY_LABELS, type SlopeKey, type Complexity, type TierEstimate,
 } from "@/lib/estimate-config";
 import { submitLead } from "@/lib/lead-client";
 import { COMPANY } from "@/lib/company";
+
+type Structure = {
+  label: string;
+  kind: "main" | "secondary" | "manual";
+  areaSqft: number;
+  areaM2: number;
+};
 
 type Est = {
   ok: boolean;
@@ -24,11 +34,24 @@ type Est = {
   slope: SlopeKey;
   suggestedSlope: SlopeKey;
   mapUrl: string | null;
+  structures?: Structure[];
   tiers: { good: TierEstimate; better: TierEstimate; best: TierEstimate };
 };
 
+type Item = Structure & { id: number; included: boolean };
+
 const SLOPES: SlopeKey[] = ["flat", "shallow", "medium", "steep"];
+const M2_TO_FT2 = 10.7639;
 const money = (n: number) => "$" + Math.round(n).toLocaleString("en-US");
+
+// Rough roof areas for structures the auto-detect missed, so a homeowner can add
+// their own. Approximate on purpose — the whole estimate is a ballpark.
+const ADD_PRESETS: { label: string; sqft: number }[] = [
+  { label: "Shed", sqft: 120 },
+  { label: "1-car garage", sqft: 264 },
+  { label: "2-car garage", sqft: 480 },
+  { label: "Large outbuilding", sqft: 600 },
+];
 
 function SlopeIcon({ k }: { k: SlopeKey }) {
   const h = { flat: 4, shallow: 11, medium: 19, steep: 27 }[k];
@@ -54,7 +77,10 @@ export function RoofEstimator() {
   const [error, setError] = useState("");
   const [contact, setContact] = useState({ firstName: "", lastName: "", phone: "", email: "", _hp: "" });
   const [suggestions, setSuggestions] = useState<string[]>([]);
+  const [items, setItems] = useState<Item[]>([]);
+  const [showAdd, setShowAdd] = useState(false);
   const acRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const idRef = useRef(0);
 
   function onAddressChange(v: string) {
     setAddress(v);
@@ -74,8 +100,25 @@ export function RoofEstimator() {
     }, 250);
   }
 
-  // tiers recomputed client-side when the user changes slope (no extra API call)
-  const tiers = est ? computeEstimate(est.areaMeters2, slope, est.facets).tiers : null;
+  // The estimate recomputes client-side (no extra API call) from the structures
+  // the user kept + the slope they confirmed.
+  const includedM2 = items.filter((i) => i.included).reduce((s, i) => s + i.areaM2, 0);
+  const result = est ? computeEstimate(includedM2 || est.areaMeters2, slope, est.facets) : null;
+  const tiers = result?.tiers ?? null;
+
+  function toggleItem(id: number) {
+    setItems((xs) => xs.map((i) => (i.id === id ? { ...i, included: !i.included } : i)));
+  }
+  function removeItem(id: number) {
+    setItems((xs) => xs.filter((i) => i.id !== id));
+  }
+  function addStructure(p: { label: string; sqft: number }) {
+    setItems((xs) => [
+      ...xs,
+      { id: idRef.current++, label: p.label, kind: "manual", areaSqft: p.sqft, areaM2: p.sqft / M2_TO_FT2, included: true },
+    ]);
+    setShowAdd(false);
+  }
 
   async function start(e: React.FormEvent) {
     e.preventDefault();
@@ -95,6 +138,11 @@ export function RoofEstimator() {
         setEst(d);
         setStep("nocoverage");
       } else {
+        const structs: Structure[] =
+          d.structures && d.structures.length
+            ? d.structures
+            : [{ label: "Main roof", kind: "main", areaSqft: Math.round(d.areaMeters2 * M2_TO_FT2), areaM2: d.areaMeters2 }];
+        setItems(structs.map((s) => ({ ...s, id: idRef.current++, included: true })));
         setEst(d);
         setSlope(d.suggestedSlope);
         setStep("review");
@@ -108,11 +156,14 @@ export function RoofEstimator() {
 
   async function submitGate(e: React.FormEvent) {
     e.preventDefault();
-    if (loading || !est || !tiers) return;
+    if (loading || !est || !tiers || !result) return;
     setLoading(true);
+    const included = items.filter((i) => i.included);
+    const extras = included.filter((i) => i.kind !== "main").length;
     const summary =
-      `Instant estimate · ~${est.areaSqft.toLocaleString()} sq ft · ${est.facets} facets · ` +
-      `${COMPLEXITY_LABELS[est.complexity]} · ${SLOPE_LABELS[slope]} slope · ` +
+      `Instant estimate · ~${result.areaSqft.toLocaleString()} sq ft · ${est.facets} facets · ` +
+      `${COMPLEXITY_LABELS[result.complexity]} · ${SLOPE_LABELS[slope]} slope · ` +
+      `${included.length} structure${included.length === 1 ? "" : "s"}${extras ? ` (+${extras} beyond main)` : ""} · ` +
       `Better ${money(tiers.better.low)}–${money(tiers.better.high)}`;
     try {
       await submitLead({
@@ -240,10 +291,93 @@ export function RoofEstimator() {
             )}
           </div>
 
-          {/* Measured facts */}
+          {/* Structures editor */}
+          <div className="mt-5">
+            <div className="flex items-center justify-between">
+              <p className="text-sm font-semibold text-horizon">Structures on your property</p>
+              <span className="text-xs text-ink-50">{items.filter((i) => i.included).length} included</span>
+            </div>
+            <p className="mt-0.5 text-xs text-ink-50">
+              We add the roof of every building on the lot. Remove any that isn&apos;t yours, or add one we missed.
+            </p>
+            <ul className="mt-3 space-y-2">
+              {items.map((it) => {
+                const Icon = it.kind === "main" ? Home : Building2;
+                return (
+                  <li
+                    key={it.id}
+                    className={`flex items-center justify-between gap-2 rounded-lg border px-3 py-2.5 ${
+                      it.included ? "border-mist bg-clear" : "border-mist/60 bg-mist-soft/40"
+                    }`}
+                  >
+                    <div className={`flex min-w-0 items-center gap-2.5 ${it.included ? "" : "opacity-50"}`}>
+                      <Icon className="h-4.5 w-4.5 shrink-0 text-ridge" />
+                      <span className={`truncate text-sm font-medium text-ink-90 ${it.included ? "" : "line-through"}`}>
+                        {it.label}
+                      </span>
+                      <span className="shrink-0 text-xs text-ink-50">~{it.areaSqft.toLocaleString()} sq ft</span>
+                    </div>
+                    {it.kind === "main" ? (
+                      <span className="shrink-0 text-xs font-medium text-ink-50">Your home</span>
+                    ) : it.kind === "manual" ? (
+                      <button
+                        onClick={() => removeItem(it.id)}
+                        className="inline-flex shrink-0 items-center gap-1 rounded-md px-2 py-1 text-xs font-semibold text-accent hover:bg-accent/5"
+                      >
+                        <Trash2 className="h-3.5 w-3.5" /> Remove
+                      </button>
+                    ) : it.included ? (
+                      <button
+                        onClick={() => toggleItem(it.id)}
+                        className="inline-flex shrink-0 items-center gap-1 rounded-md px-2 py-1 text-xs font-semibold text-ink-50 hover:bg-mist-soft hover:text-accent"
+                      >
+                        <Trash2 className="h-3.5 w-3.5" /> Remove
+                      </button>
+                    ) : (
+                      <button
+                        onClick={() => toggleItem(it.id)}
+                        className="inline-flex shrink-0 items-center gap-1 rounded-md px-2 py-1 text-xs font-semibold text-ridge hover:bg-ridge/5"
+                      >
+                        <Plus className="h-3.5 w-3.5" /> Add back
+                      </button>
+                    )}
+                  </li>
+                );
+              })}
+            </ul>
+
+            {showAdd ? (
+              <div className="mt-2 rounded-lg border border-dashed border-ridge/40 bg-ridge/5 p-3">
+                <p className="mb-2 text-xs font-semibold text-horizon">Add a structure</p>
+                <div className="flex flex-wrap gap-2">
+                  {ADD_PRESETS.map((p) => (
+                    <button
+                      key={p.label}
+                      onClick={() => addStructure(p)}
+                      className="rounded-full border border-mist bg-clear px-3 py-1.5 text-xs font-semibold text-horizon hover:border-ridge"
+                    >
+                      {p.label} <span className="text-ink-50">~{p.sqft} sq ft</span>
+                    </button>
+                  ))}
+                  <button onClick={() => setShowAdd(false)} className="px-2 py-1.5 text-xs text-ink-50 underline">
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <button
+                onClick={() => setShowAdd(true)}
+                className="mt-2 inline-flex items-center gap-1.5 text-xs font-semibold text-ridge hover:underline"
+              >
+                <Plus className="h-3.5 w-3.5" /> Add a structure we missed
+              </button>
+            )}
+          </div>
+
+          {/* Measured facts (updates live with the structures + slope above) */}
           <div className="mt-5 grid grid-cols-3 gap-3 text-center">
             <div className="rounded-lg bg-mist-soft/70 p-3">
-              <p className="font-serif text-xl font-bold text-horizon">~{est.areaSqft.toLocaleString()}</p>
+              <p className="font-serif text-xl font-bold text-horizon">~{(result?.areaSqft ?? est.areaSqft).toLocaleString()}</p>
               <p className="text-xs text-ink-50">sq ft of roof</p>
             </div>
             <div className="rounded-lg bg-mist-soft/70 p-3">
@@ -251,8 +385,8 @@ export function RoofEstimator() {
               <p className="text-xs text-ink-50">roof facets</p>
             </div>
             <div className="rounded-lg bg-mist-soft/70 p-3">
-              <p className="font-serif text-xl font-bold text-horizon">{COMPLEXITY_LABELS[est.complexity].replace(" roof", "")}</p>
-              <p className="text-xs text-ink-50">~{Math.round(est.wastePct * 100)}% waste</p>
+              <p className="font-serif text-xl font-bold text-horizon">{COMPLEXITY_LABELS[(result ?? est).complexity].replace(" roof", "")}</p>
+              <p className="text-xs text-ink-50">~{Math.round((result?.wastePct ?? est.wastePct) * 100)}% waste</p>
             </div>
           </div>
 
@@ -321,7 +455,7 @@ export function RoofEstimator() {
   }
 
   /* ---------- Step: result ---------- */
-  if (step === "result" && est && tiers) {
+  if (step === "result" && est && tiers && result) {
     return (
       <section className="bg-mist-soft py-12 lg:py-16">
         <div className="mx-auto max-w-4xl px-4">
@@ -329,8 +463,8 @@ export function RoofEstimator() {
             <CheckCircle2 className="mx-auto h-10 w-10 text-success" />
             <h2 className="mt-3 font-serif text-3xl font-bold text-horizon">Your approximate roof estimate</h2>
             <p className="mt-2 text-sm text-ink-50">
-              {est.address} · ~{est.areaSqft.toLocaleString()} sq ft · {est.facets} facets ·{" "}
-              {COMPLEXITY_LABELS[est.complexity]} · {SLOPE_LABELS[slope]} slope
+              {est.address} · ~{result.areaSqft.toLocaleString()} sq ft · {est.facets} facets ·{" "}
+              {COMPLEXITY_LABELS[result.complexity]} · {SLOPE_LABELS[slope]} slope
             </p>
           </div>
 
