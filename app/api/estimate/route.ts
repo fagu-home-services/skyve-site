@@ -52,9 +52,11 @@ type SolarOut = {
 };
 
 async function solar(lat: number, lng: number): Promise<SolarOut | null> {
+  // requiredQuality=MEDIUM: skip poor imagery (heavy tree cover / shadows), which
+  // is where Solar under-measures. Those return 404 → routed to the manual form.
   const url =
     `https://solar.googleapis.com/v1/buildingInsights:findClosest` +
-    `?location.latitude=${lat}&location.longitude=${lng}&requiredQuality=LOW&key=${KEY}`;
+    `?location.latitude=${lat}&location.longitude=${lng}&requiredQuality=MEDIUM&key=${KEY}`;
   const r = await fetch(url, { signal: AbortSignal.timeout(12000) });
   if (!r.ok) return null; // 404 = no coverage for this building
   const data = (await r.json()) as SolarResponse;
@@ -138,7 +140,15 @@ export async function POST(req: Request) {
     const roof = await solar(lat, lng);
     if (!roof) {
       // No Solar coverage for this building → tell the UI to offer a manual estimate.
-      return NextResponse.json({ ok: true, coverage: false, address: formatted, lat, lng });
+      return NextResponse.json({ ok: true, coverage: false, reason: "no_coverage", address: formatted, lat, lng });
+    }
+
+    // Low-confidence guard: an implausibly small roof means Solar only captured a
+    // fragment (trees / partial imagery). Route to the manual form instead of
+    // showing a wrong (too-low) number.
+    const areaSqftGuard = roof.areaMeters2 * 10.7639;
+    if (areaSqftGuard < 500) {
+      return NextResponse.json({ ok: true, coverage: false, reason: "low_confidence", address: formatted, lat, lng });
     }
 
     const suggested = pitchToSlope(roof.avgPitch);
@@ -152,6 +162,7 @@ export async function POST(req: Request) {
       lng,
       areaMeters2: roof.areaMeters2,
       suggestedSlope: suggested,
+      imageryQuality: roof.imageryQuality,
       mapUrl: `/api/roof-image/?lat=${lat}&lng=${lng}`,
       ...est,
       ...(body.debug

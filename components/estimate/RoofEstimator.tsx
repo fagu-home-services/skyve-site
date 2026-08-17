@@ -197,8 +197,9 @@ export function RoofEstimator() {
         <div className={box + " text-center"}>
           <h2 className="font-serif text-2xl font-bold text-horizon">We couldn&apos;t auto-measure this roof</h2>
           <p className="mt-3 text-ink-70">
-            Satellite data isn&apos;t available for <b>{est.address}</b> yet — but we&apos;ll happily
-            measure it in person. Request a free, no-obligation estimate and we&apos;ll take care of it.
+            We couldn&apos;t get a reliable satellite measurement for <b>{est.address}</b> — often
+            that&apos;s heavy tree cover or older imagery. No problem: we&apos;ll measure it in person.
+            Request a free, no-obligation estimate and we&apos;ll take care of it.
           </p>
           <div className="mt-6 flex flex-wrap justify-center gap-3">
             <a href="/instant-estimate/manual/" className="inline-flex items-center gap-2 rounded-lg bg-accent px-6 py-3.5 text-sm font-bold text-clear hover:bg-accent-hover">
