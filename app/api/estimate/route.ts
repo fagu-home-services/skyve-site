@@ -41,7 +41,7 @@ type SolarResponse = {
   };
 };
 
-async function solar(lat: number, lng: number): Promise<{ areaMeters2: number; avgPitch: number } | null> {
+async function solar(lat: number, lng: number): Promise<{ areaMeters2: number; avgPitch: number; facets: number } | null> {
   const url =
     `https://solar.googleapis.com/v1/buildingInsights:findClosest` +
     `?location.latitude=${lat}&location.longitude=${lng}&requiredQuality=LOW&key=${KEY}`;
@@ -62,7 +62,7 @@ async function solar(lat: number, lng: number): Promise<{ areaMeters2: number; a
     pSum += a * p;
   }
   const avgPitch = wSum > 0 ? pSum / wSum : 22; // fallback ~medium
-  return { areaMeters2: area, avgPitch };
+  return { areaMeters2: area, avgPitch, facets: segs.length || 1 };
 }
 
 export async function POST(req: Request) {
@@ -81,7 +81,7 @@ export async function POST(req: Request) {
     const areaM2 = 210; // ~2,260 sqft sample home
     const suggested: SlopeKey = "medium";
     const slope = slopeOverride || suggested;
-    const est = computeEstimate(areaM2, slope);
+    const est = computeEstimate(areaM2, slope, 6); // sample: 6 facets = complex
     return NextResponse.json({
       ok: true,
       mock: true,
@@ -120,7 +120,7 @@ export async function POST(req: Request) {
 
     const suggested = pitchToSlope(roof.avgPitch);
     const slope = slopeOverride || suggested;
-    const est = computeEstimate(roof.areaMeters2, slope);
+    const est = computeEstimate(roof.areaMeters2, slope, roof.facets);
     return NextResponse.json({
       ok: true,
       coverage: true,
