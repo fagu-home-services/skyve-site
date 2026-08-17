@@ -168,22 +168,28 @@ export async function POST(req: Request) {
     let totalSlopedM2 = roof.areaMeters2;
     const plat = lat;
     const plng = lng;
+    let fpDebug: { areaM2: number; dQuery: number; dMain: number; added: boolean }[] | null = null;
     try {
       const buildings = await buildingsNear(plat, plng, 28);
-      if (buildings.length > 1) {
+      if (buildings.length >= 1) {
         const withDist = buildings
           .map((b) => ({ b, d: distMeters([plat, plng], b.centroid) }))
           .sort((a, z) => a.d - z.d);
         const mainFp = withDist[0].b;
         let n = 1;
-        for (const { b } of withDist.slice(1)) {
+        fpDebug = [];
+        for (let i = 0; i < withDist.length; i++) {
+          const b = withDist[i].b;
+          const dMain = distMeters(mainFp.centroid, b.centroid);
           // outbuilding on the same lot: close to the main house, not a big neighbor
-          if (distMeters(mainFp.centroid, b.centroid) <= 14 && b.areaM2 < mainFp.areaM2 * 0.95) {
+          const added = i > 0 && dMain <= 14 && b.areaM2 < mainFp.areaM2 * 0.95;
+          if (added) {
             const slopedM2 = b.areaM2 / cosPitch;
             totalSlopedM2 += slopedM2;
             n += 1;
             structures.push({ label: `Structure ${n}`, kind: "secondary", areaSqft: Math.round(slopedM2 * M2FT), areaM2: Math.round(slopedM2) });
           }
+          fpDebug.push({ areaM2: Math.round(b.areaM2), dQuery: Math.round(withDist[i].d), dMain: Math.round(dMain), added });
         }
       }
     } catch {
@@ -216,6 +222,7 @@ export async function POST(req: Request) {
               facets: roof.facets,
               imageryQuality: roof.imageryQuality,
               segments: roof.segments,
+              footprints: fpDebug, // null = DB not queried/reached; [] = none found
             },
           }
         : {}),
