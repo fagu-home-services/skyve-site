@@ -8,6 +8,11 @@ export const ESTIMATE_CONFIG = {
   /** Skyve price per roofing "square" (100 sq ft) — matches the proposal tiers. */
   rates: { good: 540, better: 610, best: 750 }, // USD / square
 
+  /** Solar → real-report calibration. Google Solar under-measures ~5-7% vs
+   *  EagleView/Hover (worse on steep roofs — it misses small/steep facets).
+   *  Derived from 9 real Skyve measurement reports (2026-08). */
+  solarCalibration: { flat: 1.07, shallow: 1.07, medium: 1.07, steep: 1.15 },
+
   /** Labor multiplier by slope (steeper = more labor/safety/staging). */
   slopeMultiplier: { flat: 1.0, shallow: 1.0, medium: 1.06, steep: 1.15 },
 
@@ -81,8 +86,10 @@ export function computeEstimate(areaMeters2: number, slope: SlopeKey, facets: nu
   const waste = ESTIMATE_CONFIG.wasteBase[complexity] + ESTIMATE_CONFIG.wasteSlopeBump[slope];
   const spread = ESTIMATE_CONFIG.rangeSpread[complexity];
 
-  const areaSqft = Math.round(areaMeters2 * M2_TO_FT2);
-  const rawSquares = (areaMeters2 * M2_TO_FT2) / 100;
+  // Calibrate the raw Solar area up to match real measurement reports.
+  const calibratedM2 = areaMeters2 * ESTIMATE_CONFIG.solarCalibration[slope];
+  const areaSqft = Math.round(calibratedM2 * M2_TO_FT2);
+  const rawSquares = (calibratedM2 * M2_TO_FT2) / 100;
   const squares = Math.max(rawSquares, ESTIMATE_CONFIG.minSquares);
   const effSquares = squares * (1 + waste) * ESTIMATE_CONFIG.slopeMultiplier[slope];
 
