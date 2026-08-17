@@ -71,7 +71,7 @@ export const FAQ_RESOURCES = {
   items: [
     { title: "Roof Replacement", desc: "Our most popular roofing service", href: "/services/roof-replacement" },
     { title: "Warranty Information", desc: "Learn about our warranty coverage", href: "/warranty" },
-    { title: "Financing Options", desc: "Flexible payment plans available", href: "/financing" },
+    { title: "Payment Options", desc: "Ask us about paying for your project", href: "/financing" },
     { title: "Roof Maintenance", desc: "Keep your roof in top condition", href: "/services" },
   ],
   link: { label: "Get a Free Estimate", href: "/estimate/instant" },

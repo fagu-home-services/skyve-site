@@ -180,7 +180,6 @@ export const FOOTER_COLUMNS = [
     heading: "Get Started",
     links: [
       { label: "Get Instant Estimate", href: "/estimate/instant" },
-      { label: "Financing", href: "/financing" },
       { label: "FAQs", href: "/faq" },
       { label: "Contact Us", href: "/contact" },
     ],

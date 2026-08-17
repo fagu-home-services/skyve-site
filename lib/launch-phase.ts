@@ -27,7 +27,11 @@ export const LAUNCH_PATHS: readonly string[] = [
   "/licenses-insurance",          // first thing a homeowner checks in roofing
   "/warranty",                    // what they get
   "/faq",                         // kills objections before the visit
-  "/financing",                   // helps close a $20k+ ticket
+  // "/financing",                // HIDDEN 2026-08-16: page advertised specific
+  //                              lenders/rates (GreenSky, Synchrony, 0% APR) we
+  //                              have no partner for yet. Re-enable when a real
+  //                              financing partner is signed (and the page copy
+  //                              is made honest).
   "/service-area",                // coverage = credibility
   "/legal/privacy",               // required
   "/legal/terms",                 // required

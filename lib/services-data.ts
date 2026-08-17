@@ -27,5 +27,5 @@ export const SERVICES_WHY = [
   { icon: "badge", title: "Certified Experts", desc: "Top certifications and continuous training." },
   { icon: "star", title: "Quality Materials", desc: "We use only the best materials in the industry." },
   { icon: "shield", title: "Industry-Leading Warranty", desc: "Strong warranties that stand behind our work." },
-  { icon: "message", title: "5-Star Rated", desc: "Hundreds of happy customers across WA." },
+  { icon: "users", title: "Owner-Led", desc: "The owners are on every job — documented photo by photo." },
 ] as const;

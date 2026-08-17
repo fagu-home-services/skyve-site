@@ -1,4 +1,5 @@
 import { liveHref } from "@/lib/launch-phase";
+import { COMPANY } from "@/lib/company";
 /* City landing page template (/roofing-[city]-wa) — mock content.
    Hero/skyline images are placeholders (swap for real local photos).
    Testimonial avatars use initials. */
@@ -24,10 +25,10 @@ export const CITY_PROCESS = [
 ];
 
 export const CITY_BADGES = [
-  { icon: "shield", title: "Licensed", sub: "#SKYVE8B1OBG" },
+  { icon: "shield", title: "Licensed", sub: `#${COMPANY.license}` },
   { icon: "badge", title: "Bonded", sub: "& Insured" },
-  { icon: "star", title: "5-Star", sub: "Rating" },
-  { icon: "badge", title: "A+ Rated", sub: "BBB Accredited" },
+  { icon: "badge", title: "25-Year", sub: "Warranty" },
+  { icon: "users", title: "Owner-Led", sub: "Every Job" },
 ];
 
 export type CityData = {

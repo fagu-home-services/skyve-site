@@ -1,10 +1,7 @@
 import Link from "next/link";
-import {
-  ChevronRight, Star, Phone, ArrowRight, Play, MapPin,
-} from "lucide-react";
+import { ChevronRight, Phone, ArrowRight, MapPin } from "lucide-react";
 import { Photo, resolveImg } from "@/components/shared/Photo";
 import { Icon } from "@/components/shared/Icon";
-import { AvatarPlaceholder } from "@/components/shared/AvatarPlaceholder";
 import { SiteHeader } from "@/components/layout/SiteHeader";
 import { SiteFooter } from "@/components/layout/SiteFooter";
 import { COMPANY } from "@/lib/company";
@@ -13,6 +10,20 @@ import {
 } from "@/lib/city-data";
 
 export function CityPage({ city }: { city: CityData }) {
+  // Honest stats (no fabricated rating / "2,000+ roofs" / "15+ years").
+  const cityStats = [
+    { icon: "shield", value: "Licensed", label: "& Insured" },
+    { icon: "badge", value: `${COMPANY.warrantyYears}-Year`, label: "Workmanship Warranty" },
+    { icon: "home", value: COMPANY.yearsCombined, label: "Years Combined" },
+    { icon: "users", value: "Owner-Led", label: "Every Project" },
+    { icon: "mappin", value: "Local", label: `${city.name} Area` },
+  ];
+  const trustPoints = [
+    { icon: "shield", t: "Licensed & insured", d: `WA license #${COMPANY.license}` },
+    { icon: "badge", t: `${COMPANY.warrantyYears}-year workmanship warranty`, d: "Backed in writing" },
+    { icon: "users", t: "Owner-led & documented", d: "Photos on every job" },
+  ];
+
   return (
     <>
       <SiteHeader />
@@ -53,22 +64,20 @@ export function CityPage({ city }: { city: CityData }) {
                 </a>
               </div>
 
-              <div className="mt-5 flex items-center gap-2 text-sm">
-                <span className="flex">
-                  {Array.from({ length: 5 }).map((_, i) => (
-                    <Star key={i} className="h-4 w-4 fill-accent text-accent" />
-                  ))}
-                </span>
-                <span className="font-bold">{city.rating.score}</span>
-                <span className="text-mist-soft/60">({city.rating.count})</span>
+              <div className="mt-5 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-mist-soft/85">
+                <span className="font-semibold text-clear">Licensed &amp; Insured</span>
+                <span className="text-mist-soft/40">·</span>
+                <span>{COMPANY.warrantyYears}-Year Warranty</span>
+                <span className="text-mist-soft/40">·</span>
+                <span>{COMPANY.yearsCombined} years combined</span>
               </div>
             </div>
           </div>
 
-          {/* Stats bar */}
+          {/* Stats bar (honest) */}
           <div className="relative border-t border-clear/10">
             <div className="container-skyve grid grid-cols-2 gap-6 py-6 sm:grid-cols-3 lg:grid-cols-5">
-              {city.stats.map((s) => (
+              {cityStats.map((s) => (
                 <div key={s.label} className="flex items-center gap-3">
                   <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-clear/10">
                     <Icon name={s.icon} className="h-4 w-4 text-accent" />
@@ -178,15 +187,15 @@ export function CityPage({ city }: { city: CityData }) {
           </div>
         </section>
 
-        {/* Projects */}
+        {/* Services available locally (gallery — no fabricated completed-job ratings) */}
         <section className="bg-clear py-16 lg:py-20">
           <div className="container-skyve">
             <div className="flex items-center justify-between">
               <h2 className="font-serif text-2xl font-bold text-horizon sm:text-3xl">
-                Recent Roofing Projects <span className="text-ridge">in {city.name}</span>
+                Roofing Work <span className="text-ridge">in {city.name}</span>
               </h2>
-              <Link href="/projects" className="hidden items-center gap-1 text-sm font-semibold text-ridge hover:text-accent sm:inline-flex">
-                View All Projects <ArrowRight className="h-4 w-4" />
+              <Link href="/services" className="hidden items-center gap-1 text-sm font-semibold text-ridge hover:text-accent sm:inline-flex">
+                View All Services <ArrowRight className="h-4 w-4" />
               </Link>
             </div>
             <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
@@ -194,13 +203,8 @@ export function CityPage({ city }: { city: CityData }) {
                 <article key={p.neighborhood} className="overflow-hidden rounded-xl border border-mist bg-clear shadow-card">
                   <Photo src={p.image} alt={p.type} className="aspect-[16/10]" />
                   <div className="p-4">
-                    <p className="text-[11px] font-bold uppercase tracking-wide text-ridge">{p.neighborhood}</p>
-                    <div className="mt-1 flex items-center justify-between gap-2">
-                      <h3 className="text-sm font-bold text-horizon">{p.type}</h3>
-                      <span className="flex items-center gap-1 text-xs font-bold text-horizon">
-                        <Star className="h-3.5 w-3.5 fill-accent text-accent" /> {p.rating}
-                      </span>
-                    </div>
+                    <p className="text-[11px] font-bold uppercase tracking-wide text-ridge">{p.neighborhood} area</p>
+                    <h3 className="mt-1 text-sm font-bold text-horizon">{p.type}</h3>
                   </div>
                 </article>
               ))}
@@ -208,43 +212,41 @@ export function CityPage({ city }: { city: CityData }) {
           </div>
         </section>
 
-        {/* Testimonials */}
+        {/* Reputation (honest — no fabricated testimonials/rating) */}
         <section className="bg-clear pb-16">
           <div className="container-skyve">
             <div className="rounded-2xl bg-horizon-deep p-8 text-clear lg:p-10">
-              <h2 className="text-center font-serif text-2xl font-bold">
-                What {city.name} Homeowners Say
-              </h2>
-              <div className="mt-8 grid gap-6 lg:grid-cols-[1fr_1fr_1fr_260px]">
-                {city.testimonials.map((t) => (
-                  <figure key={t.name} className="rounded-xl bg-clear/5 p-5 ring-1 ring-clear/10">
-                    <div className="flex">
-                      {Array.from({ length: 5 }).map((_, i) => (
-                        <Star key={i} className="h-4 w-4 fill-accent text-accent" />
-                      ))}
-                    </div>
-                    <blockquote className="mt-2 text-sm leading-relaxed text-mist-soft/85">&ldquo;{t.quote}&rdquo;</blockquote>
-                    <figcaption className="mt-4 flex items-center gap-2.5">
-                      <AvatarPlaceholder initials={t.initials} className="h-9 w-9 rounded-full" />
-                      <div>
-                        <p className="text-sm font-bold text-clear">{t.name}</p>
-                        <p className="text-xs text-mist-soft/60">{t.area}</p>
+              <div className="grid gap-8 lg:grid-cols-[1fr_320px] lg:items-center">
+                <div>
+                  <p className="eyebrow text-accent">New name. Not new to roofing.</p>
+                  <h2 className="mt-3 font-serif text-2xl font-bold sm:text-3xl">
+                    Why {city.name} homeowners can trust Skyve
+                  </h2>
+                  <p className="mt-4 max-w-xl text-sm leading-relaxed text-mist-soft/85">
+                    We&apos;re a new company built on {COMPANY.yearsCombined} years of roofing
+                    experience. We won&apos;t show inflated review counts — verified reviews will
+                    appear as we complete work, and our Google profile is being verified. Here&apos;s
+                    what backs your roof today.
+                  </p>
+                  <div className="mt-6 grid gap-4 sm:grid-cols-3">
+                    {trustPoints.map((tp) => (
+                      <div key={tp.t} className="rounded-xl bg-clear/5 p-4 ring-1 ring-clear/10">
+                        <Icon name={tp.icon} className="h-6 w-6 text-accent" />
+                        <p className="mt-2 text-sm font-bold text-clear">{tp.t}</p>
+                        <p className="mt-0.5 text-xs text-mist-soft/60">{tp.d}</p>
                       </div>
-                    </figcaption>
-                  </figure>
-                ))}
-
-                <div className="flex flex-col justify-center">
-                  <h3 className="font-serif text-lg font-bold">See More Real Stories</h3>
-                  <p className="mt-1 text-sm text-mist-soft/70">Read verified reviews from homeowners across the Eastside.</p>
-                  <div className="mt-4 flex items-center gap-3">
-                    <Link href="/reviews" className="inline-flex items-center gap-2 rounded-lg border border-clear/25 px-4 py-2.5 text-sm font-semibold text-clear transition-colors hover:bg-clear/10">
-                      Read Reviews <ArrowRight className="h-4 w-4" />
-                    </Link>
-                    <span className="flex h-11 w-11 items-center justify-center rounded-full ring-2 ring-accent/60">
-                      <Play className="ml-0.5 h-4 w-4 fill-accent text-accent" />
-                    </span>
+                    ))}
                   </div>
+                </div>
+
+                <div className="flex flex-col justify-center rounded-xl bg-clear/5 p-6 ring-1 ring-clear/10">
+                  <h3 className="font-serif text-lg font-bold">Be one of our first reviews</h3>
+                  <p className="mt-1 text-sm text-mist-soft/70">
+                    Get an honest, itemized estimate — no pressure.
+                  </p>
+                  <Link href="/estimate/instant" className="mt-4 inline-flex items-center justify-center gap-2 rounded-lg bg-accent px-5 py-3 text-sm font-semibold text-clear transition-colors hover:bg-accent-hover">
+                    Get Free Estimate <ArrowRight className="h-4 w-4" />
+                  </Link>
                 </div>
               </div>
             </div>
