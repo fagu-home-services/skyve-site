@@ -89,7 +89,9 @@ export async function POST(req: Request) {
       address: address || "123 Sample St, Bothell, WA",
       lat: 47.76,
       lng: -122.2,
+      areaMeters2: areaM2,
       suggestedSlope: suggested,
+      mapUrl: null,
       ...est,
     });
   }
@@ -127,7 +129,9 @@ export async function POST(req: Request) {
       address: formatted,
       lat,
       lng,
+      areaMeters2: roof.areaMeters2,
       suggestedSlope: suggested,
+      mapUrl: `/api/roof-image?lat=${lat}&lng=${lng}`,
       ...est,
     });
   } catch (e) {
