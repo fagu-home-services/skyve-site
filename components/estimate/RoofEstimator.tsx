@@ -201,7 +201,7 @@ export function RoofEstimator() {
             measure it in person. Request a free, no-obligation estimate and we&apos;ll take care of it.
           </p>
           <div className="mt-6 flex flex-wrap justify-center gap-3">
-            <a href="/instant-estimate/" className="inline-flex items-center gap-2 rounded-lg bg-accent px-6 py-3.5 text-sm font-bold text-clear hover:bg-accent-hover">
+            <a href="/instant-estimate/manual/" className="inline-flex items-center gap-2 rounded-lg bg-accent px-6 py-3.5 text-sm font-bold text-clear hover:bg-accent-hover">
               Request a free estimate <ArrowRight className="h-4 w-4" />
             </a>
             <a href={COMPANY.phoneHref} className="inline-flex items-center gap-2 rounded-lg border border-mist bg-clear px-6 py-3.5 text-sm font-semibold text-horizon hover:border-ridge">
@@ -356,7 +356,7 @@ export function RoofEstimator() {
               <a href={COMPANY.phoneHref} className="inline-flex items-center gap-2 rounded-lg bg-accent px-6 py-3.5 text-sm font-bold text-clear hover:bg-accent-hover">
                 <Phone className="h-4 w-4" /> Book my free inspection
               </a>
-              <a href="/instant-estimate/" className="inline-flex items-center gap-2 rounded-lg border border-mist px-6 py-3.5 text-sm font-semibold text-horizon hover:border-ridge">
+              <a href="/instant-estimate/manual/" className="inline-flex items-center gap-2 rounded-lg border border-mist px-6 py-3.5 text-sm font-semibold text-horizon hover:border-ridge">
                 Ask a question
               </a>
             </div>
