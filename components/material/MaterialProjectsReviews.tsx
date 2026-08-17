@@ -1,7 +1,7 @@
 import Link from "next/link";
-import { Star, ArrowRight } from "lucide-react";
+import { ArrowRight, ShieldCheck, Award, ClipboardCheck } from "lucide-react";
 import { Photo } from "@/components/shared/Photo";
-import { RATING } from "@/lib/why-data";
+import { COMPANY } from "@/lib/company";
 import type { MaterialPage } from "@/lib/material-pages";
 
 export function MaterialProjectsReviews({ data }: { data: MaterialPage }) {
@@ -34,45 +34,29 @@ export function MaterialProjectsReviews({ data }: { data: MaterialPage }) {
           </Link>
         </div>
 
-        {/* Review */}
+        {/* Honest trust — no fabricated Google rating or testimonial (company is new) */}
         <div>
           <h2 className="font-serif text-xl font-bold text-horizon sm:text-2xl">
-            {data.reviewsHeading ?? "What Homeowners Are Saying"}
+            Why homeowners trust Skyve
           </h2>
-          <div className="mt-5 grid gap-5 sm:grid-cols-[160px_1fr]">
-            <div className="flex flex-col items-center justify-center rounded-xl border border-mist bg-mist-soft/60 p-4 text-center">
-              <span className="font-serif text-base font-bold text-ridge">Google</span>
-              <p className="mt-1 font-serif text-3xl font-extrabold text-horizon">{RATING.score}</p>
-              <div className="mt-1 flex gap-0.5">
-                {Array.from({ length: 5 }).map((_, i) => (
-                  <Star key={i} className="h-4 w-4 fill-accent text-accent" />
-                ))}
-              </div>
-              <p className="mt-2 text-[11px] text-ink-50">{RATING.reviews}</p>
-              <Link href="#" className="mt-1.5 text-[11px] font-semibold text-ridge hover:text-accent">
-                View All Reviews on Google →
-              </Link>
-            </div>
-            <figure className="flex flex-col justify-center rounded-xl border border-mist bg-clear p-5 shadow-card">
-              <div className="flex items-center gap-3">
-                <span className="flex h-10 w-10 items-center justify-center rounded-full bg-ridge text-sm font-bold text-clear">
-                  {data.review.initials}
-                </span>
-                <div>
-                  <p className="text-sm font-bold text-horizon">{data.review.name}</p>
-                  <p className="text-xs text-ink-50">{data.review.city}</p>
-                </div>
-              </div>
-              <div className="mt-2 flex gap-0.5">
-                {Array.from({ length: 5 }).map((_, i) => (
-                  <Star key={i} className="h-3.5 w-3.5 fill-accent text-accent" />
-                ))}
-              </div>
-              <blockquote className="mt-2 text-sm leading-relaxed text-ink-70">
-                {data.review.quote}
-              </blockquote>
-            </figure>
-          </div>
+          <p className="mt-4 text-ink-70">
+            We&apos;re a new company built on {COMPANY.yearsCombined} years of roofing experience — no
+            inflated review counts. Here&apos;s what backs your roof today:
+          </p>
+          <ul className="mt-5 space-y-3 text-sm text-ink-70">
+            <li className="flex items-start gap-2.5">
+              <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-ridge" /> Licensed &amp; insured in
+              Washington (#{COMPANY.license})
+            </li>
+            <li className="flex items-start gap-2.5">
+              <Award className="mt-0.5 h-4 w-4 shrink-0 text-ridge" /> {COMPANY.warrantyYears}-year
+              workmanship warranty, in writing
+            </li>
+            <li className="flex items-start gap-2.5">
+              <ClipboardCheck className="mt-0.5 h-4 w-4 shrink-0 text-ridge" /> Owner-led — every job
+              documented photo by photo
+            </li>
+          </ul>
         </div>
       </div>
     </section>

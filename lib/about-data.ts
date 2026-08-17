@@ -16,7 +16,7 @@ export const FOUNDER = {
   initials: "FS",
   bio: [
     "Fabricio founded Skyve with a mission to bring technology, transparency, and accountability to an industry that desperately needed it.",
-    "With over 15 years of hands-on experience in roofing and construction, he leads with integrity, precision, and a relentless focus on customer satisfaction.",
+    "With over a decade of hands-on experience in roofing and construction, he leads with integrity, precision, and a relentless focus on customer satisfaction.",
   ],
 };
 
@@ -42,9 +42,8 @@ export const VALUES = [
 ] as const;
 
 export const IMPACT_STATS = [
-  { icon: "home", value: "15+", label: "Years of Experience" },
-  { icon: "shield", value: "10,000+", label: "Roofs Completed" },
-  { icon: "users", value: "5,000+", label: "Happy Homeowners" },
-  { icon: "mappin", value: "30+", label: "Cities Served" },
-  { icon: "star", value: "4.9★", label: "Average Rating" },
+  { icon: "home", value: "20+", label: "Years Combined Experience" },
+  { icon: "shield", value: "Licensed", label: "& Fully Insured" },
+  { icon: "users", value: "Owner-Led", label: "Every Project" },
+  { icon: "mappin", value: "King & Snohomish", label: "Counties Served" },
 ] as const;

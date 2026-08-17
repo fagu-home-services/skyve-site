@@ -5,8 +5,8 @@ export const FAQ_HERO = {
   desc: "Find answers to the most common questions about roofing, our process, warranties, and more.",
   image: "",
   badges: [
-    { icon: "shield", title: "Licensed & Insured", sub: "WA License #SKYVERExx" },
-    { icon: "badge", title: "15+ Years Experience", sub: "In the Pacific Northwest" },
+    { icon: "shield", title: "Licensed & Insured", sub: "WA License #SKYVERE905BN" },
+    { icon: "badge", title: "20+ Years Combined", sub: "Founders' experience" },
     { icon: "layers", title: "Premium Materials", sub: "Backed by Strong Warranties" },
     { icon: "users", title: "Local & Reliable", sub: "Proudly Serving WA" },
   ],

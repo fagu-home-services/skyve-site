@@ -7,11 +7,9 @@ export const COMPANY = {
   emailHref: "mailto:fabricio@skyvewa.com",
   serviceArea: "King & Snohomish County",
   serviceAreaLong: "King County & Snohomish County, WA",
-  rating: "4.9",
-  reviewCount: "700+",
-  yearsExperience: "15+",
-  projectsCompleted: "1,200+",
-  // Honest facts for a new company with veteran founders (use these on the home):
+  // Honest facts for a new company with veteran founders.
+  // No fabricated rating/reviewCount/projectsCompleted — the company is new and
+  // its Google profile is still being verified. Do NOT reintroduce those.
   yearsCombined: "20+", // Andre + Fabricio, combined roofing experience
   warrantyYears: "25", // workmanship warranty
   license: "SKYVERE905BN",

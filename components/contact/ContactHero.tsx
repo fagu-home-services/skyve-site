@@ -4,7 +4,7 @@ import {
   Mail,
   MapPin,
   Clock,
-  Star,
+  Award,
   ShieldCheck,
   ArrowRight,
   ArrowUpRight,
@@ -34,7 +34,7 @@ export function ContactHero() {
           {/* trust row */}
           <div className="mt-6 flex flex-wrap gap-x-6 gap-y-2 text-xs font-medium text-ink-70">
             <span className="flex items-center gap-1.5">
-              <Star className="h-4 w-4 fill-accent text-accent" /> 4.9 Rating
+              <Award className="h-4 w-4 text-accent" /> 25-Year Warranty
             </span>
             <span className="flex items-center gap-1.5">
               <ShieldCheck className="h-4 w-4 text-ridge" /> Licensed &amp; Insured
@@ -43,7 +43,7 @@ export function ContactHero() {
               <MapPin className="h-4 w-4 text-ridge" /> Serving Washington Homeowners
             </span>
             <span className="flex items-center gap-1.5">
-              <Clock className="h-4 w-4 text-ridge" /> 15+ Years Experience
+              <Clock className="h-4 w-4 text-ridge" /> 20+ Years Combined
             </span>
           </div>
 

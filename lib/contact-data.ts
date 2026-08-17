@@ -3,10 +3,10 @@ import { liveHref } from "@/lib/launch-phase";
 import { COMPANY } from "./company";
 
 export const CONTACT_HERO_TRUST = [
-  "4.9 Rating",
+  "25-Year Workmanship Warranty",
   "Licensed & Insured",
   "Serving Washington Homeowners",
-  "15+ Years Experience",
+  "20+ Years Combined Experience",
 ];
 
 export const CONTACT_INFO = [

@@ -1,7 +1,8 @@
-import { Star } from "lucide-react";
+import { ShieldCheck } from "lucide-react";
 import { Icon } from "@/components/shared/Icon";
 import { Breadcrumb } from "@/components/shared/Breadcrumb";
 import { WHY_HERO_IMAGE, WHY_HERO_FEATURES, RATING } from "@/lib/why-data";
+import { COMPANY } from "@/lib/company";
 
 export function WhyHero() {
   return (
@@ -50,22 +51,19 @@ export function WhyHero() {
             </div>
           </div>
 
-          {/* Rating card */}
+          {/* Trust card (honest — company is new, no fabricated rating) */}
           <div className="rounded-2xl bg-clear p-6 shadow-elevated">
             <div className="flex items-center gap-3">
-              <span className="flex h-9 w-9 items-center justify-center rounded-full border border-mist font-serif text-lg font-bold text-ridge">
-                G
+              <span className="flex h-9 w-9 items-center justify-center rounded-full bg-sky-soft">
+                <ShieldCheck className="h-5 w-5 text-ridge" />
               </span>
-              <span className="font-serif text-4xl font-extrabold text-horizon">
-                {RATING.score}
+              <span className="font-serif text-2xl font-extrabold text-horizon">
+                {COMPANY.warrantyYears}-Year Warranty
               </span>
-              <div className="flex gap-0.5">
-                {Array.from({ length: 5 }).map((_, i) => (
-                  <Star key={i} className="h-5 w-5 fill-accent text-accent" />
-                ))}
-              </div>
             </div>
-            <p className="mt-3 text-sm font-semibold text-horizon">{RATING.reviews}</p>
+            <p className="mt-3 text-sm font-semibold text-horizon">
+              Licensed &amp; insured · {COMPANY.yearsCombined} years combined experience
+            </p>
             <p className="text-xs text-ink-50">{RATING.area}</p>
           </div>
         </div>

@@ -1,12 +1,11 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import {
-  Phone, ArrowRight, Star, ShieldCheck, Clock, Ruler, FileText, CheckCircle2, MapPin,
+  Phone, ArrowRight, Award, ShieldCheck, Clock, Ruler, FileText, CheckCircle2, MapPin,
 } from "lucide-react";
 import { Logo } from "@/components/shared/Logo";
 import { Photo } from "@/components/shared/Photo";
 import { COMPANY } from "@/lib/company";
-import { RH_REVIEWS } from "@/lib/reviews-hub-data";
 
 /* Paid-traffic landing page. Deliberately has NO site navigation: the only
    ways out are the estimate CTA, the phone, and the legal links. Every CTA
@@ -23,9 +22,9 @@ export const metadata: Metadata = {
 const CTA = "/estimate/instant";
 
 const TRUST = [
-  { icon: Star, label: `${COMPANY.rating} rating`, sub: `${COMPANY.reviewCount} reviews` },
+  { icon: Award, label: `${COMPANY.warrantyYears}-year warranty`, sub: "Workmanship" },
   { icon: ShieldCheck, label: "Licensed & insured", sub: `Lic. ${COMPANY.license}` },
-  { icon: Clock, label: `${COMPANY.yearsExperience} years`, sub: "in business" },
+  { icon: Clock, label: `${COMPANY.yearsCombined} years`, sub: "combined experience" },
   { icon: MapPin, label: COMPANY.serviceArea, sub: "Washington" },
 ];
 
@@ -131,12 +130,9 @@ export default function FreeEstimateLanding() {
                   </li>
                 ))}
               </ul>
-              <div className="mt-5 flex items-center gap-1.5 border-t border-clear/15 pt-4">
-                {[0, 1, 2, 3, 4].map((i) => (
-                  <Star key={i} className="h-4 w-4 fill-accent text-accent" />
-                ))}
-                <span className="ml-1 text-sm font-bold text-clear">{COMPANY.rating}</span>
-                <span className="text-sm text-mist-soft/70">· {COMPANY.reviewCount} reviews</span>
+              <div className="mt-5 flex items-center gap-2 border-t border-clear/15 pt-4 text-sm text-mist-soft/85">
+                <ShieldCheck className="h-4 w-4 shrink-0 text-accent" />
+                <span>Licensed &amp; insured · {COMPANY.warrantyYears}-year workmanship warranty</span>
               </div>
             </div>
           </div>
@@ -194,7 +190,7 @@ export default function FreeEstimateLanding() {
             <div className="mx-auto max-w-2xl text-center">
               <p className="eyebrow text-ridge">Recent work</p>
               <h2 className="mt-3 font-serif text-3xl font-bold text-horizon sm:text-4xl">
-                {COMPANY.projectsCompleted} projects across {COMPANY.serviceArea}
+                The work we do across {COMPANY.serviceArea}
               </h2>
             </div>
             <div className="mt-10 grid gap-5 sm:grid-cols-3">
@@ -208,37 +204,30 @@ export default function FreeEstimateLanding() {
           </div>
         </section>
 
-        {/* Reviews */}
+        {/* Why trust a new company (honest — no fabricated reviews) */}
         <section className="bg-clear py-16 lg:py-20">
           <div className="container-skyve">
             <div className="mx-auto max-w-2xl text-center">
-              <p className="eyebrow text-ridge">What homeowners say</p>
+              <p className="eyebrow text-ridge">Why homeowners trust us</p>
               <h2 className="mt-3 font-serif text-3xl font-bold text-horizon sm:text-4xl">
-                Rated {COMPANY.rating} by {COMPANY.reviewCount} neighbors
+                A new company, built on {COMPANY.yearsCombined} years of roofs
               </h2>
+              <p className="mt-4 text-ink-70">
+                We won&apos;t show you inflated review counts. What we bring is two decades of hands-on
+                experience, licensed and insured work, and a warranty in writing.
+              </p>
             </div>
             <div className="mt-10 grid gap-5 lg:grid-cols-3">
-              {RH_REVIEWS.slice(0, 3).map((r) => (
-                <figure key={r.name + r.date} className="flex flex-col rounded-2xl border border-mist bg-clear p-6 shadow-card">
-                  <div className="flex items-center gap-1">
-                    {Array.from({ length: r.rating }).map((_, i) => (
-                      <Star key={i} className="h-4 w-4 fill-accent text-accent" />
-                    ))}
-                  </div>
-                  <p className="mt-4 font-serif text-lg font-bold text-horizon">{r.title}</p>
-                  <blockquote className="mt-2 flex-1 text-sm leading-relaxed text-ink-70">
-                    &ldquo;{r.body}&rdquo;
-                  </blockquote>
-                  <figcaption className="mt-5 flex items-center gap-3 border-t border-mist pt-4">
-                    <span className="flex h-9 w-9 items-center justify-center rounded-full bg-sky-soft text-xs font-bold text-ridge">
-                      {r.initials}
-                    </span>
-                    <span className="min-w-0">
-                      <span className="block truncate text-sm font-bold text-horizon">{r.name}</span>
-                      <span className="block truncate text-xs text-ink-50">{r.location} · {r.service}</span>
-                    </span>
-                  </figcaption>
-                </figure>
+              {[
+                { icon: ShieldCheck, t: "Licensed & insured", d: `Washington license #${COMPANY.license}, fully insured on every job.` },
+                { icon: Award, t: `${COMPANY.warrantyYears}-year workmanship warranty`, d: "Backed in writing. If our work fails, we come back and make it right." },
+                { icon: CheckCircle2, t: "Owner-led, documented work", d: "The owners are on the roof, and every job is documented photo by photo." },
+              ].map((c) => (
+                <div key={c.t} className="rounded-2xl border border-mist bg-clear p-6 shadow-card">
+                  <c.icon className="h-7 w-7 text-ridge" />
+                  <p className="mt-4 font-serif text-lg font-bold text-horizon">{c.t}</p>
+                  <p className="mt-2 text-sm leading-relaxed text-ink-70">{c.d}</p>
+                </div>
               ))}
             </div>
           </div>

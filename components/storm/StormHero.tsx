@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Phone, ArrowRight, Star, Clock, ShieldCheck, CheckCircle2, CloudRain } from "lucide-react";
+import { Phone, ArrowRight, Clock, ShieldCheck, CheckCircle2, CloudRain, Award } from "lucide-react";
 import { Breadcrumb } from "@/components/shared/Breadcrumb";
 import { COMPANY } from "@/lib/company";
 import { STORM_HERO_IMAGE, SEVERE_RESPONSE } from "@/lib/storm-data";
@@ -73,15 +73,10 @@ export function StormHero() {
 
           <div className="mt-7 flex flex-wrap items-center gap-x-6 gap-y-3 text-xs font-medium text-clear">
             <span className="flex items-center gap-1.5 rounded-md bg-clear/10 px-2.5 py-1.5">
-              <span className="flex gap-0.5">
-                {Array.from({ length: 5 }).map((_, i) => (
-                  <Star key={i} className="h-3.5 w-3.5 fill-success text-success" />
-                ))}
-              </span>
-              {COMPANY.rating} ({COMPANY.reviewCount} Reviews)
+              <Award className="h-3.5 w-3.5 text-success" /> 25-Year Warranty
             </span>
             <span className="flex items-center gap-1.5">
-              <Clock className="h-4 w-4 text-sky" /> {COMPANY.yearsExperience} Years Experience
+              <Clock className="h-4 w-4 text-sky" /> {COMPANY.yearsCombined} Years Combined
             </span>
             <span className="text-sky-soft/80">Emergency Response</span>
             <span className="flex items-center gap-1.5">

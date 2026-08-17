@@ -6,7 +6,7 @@ import {
   UploadCloud,
   ArrowRight,
   Clock,
-  Star,
+  Award,
   ShieldCheck,
   MessageSquare,
   CheckCircle2,
@@ -18,7 +18,7 @@ import { submitLead } from "@/lib/lead-client";
 const ASSURANCES = [
   { icon: Clock, title: "Fast response", desc: "We reply in under 1 business day." },
   { icon: ShieldCheck, title: "No pressure", desc: "Honest advice, no pushy sales." },
-  { icon: Star, title: "4.9 rating", desc: "Trusted by 700+ homeowners." },
+  { icon: Award, title: "25-year warranty", desc: "Workmanship, backed in writing." },
 ];
 
 const INPUT =

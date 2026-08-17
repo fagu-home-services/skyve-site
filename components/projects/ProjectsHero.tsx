@@ -25,7 +25,7 @@ export function ProjectsHero() {
               <Icon name={s.icon} className="mt-0.5 h-5 w-5 text-sky" />
               <div>
                 <p className="flex items-center gap-1 font-serif text-2xl font-bold text-clear">
-                  {s.value}{s.star && <Star className="h-4 w-4 fill-accent text-accent" />}
+                  {s.value}
                 </p>
                 <p className="text-[11px] leading-snug text-mist-soft/70">{s.label}</p>
               </div>

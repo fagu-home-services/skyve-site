@@ -1,12 +1,5 @@
 import Link from "next/link";
-import {
-  ArrowRight,
-  CalendarDays,
-  Star,
-  Clock,
-  Leaf,
-  ChevronsLeftRight,
-} from "lucide-react";
+import { ArrowRight, CalendarDays, Clock, Leaf, ChevronsLeftRight, Award } from "lucide-react";
 import { Icon } from "@/components/shared/Icon";
 import { Photo } from "@/components/shared/Photo";
 import { Breadcrumb } from "@/components/shared/Breadcrumb";
@@ -61,15 +54,10 @@ export function CleaningHero() {
 
           <div className="mt-7 flex flex-wrap items-center gap-x-6 gap-y-3 text-xs font-medium text-clear">
             <span className="flex items-center gap-1.5 rounded-md bg-clear/10 px-2.5 py-1.5">
-              <span className="flex gap-0.5">
-                {Array.from({ length: 5 }).map((_, i) => (
-                  <Star key={i} className="h-3.5 w-3.5 fill-success text-success" />
-                ))}
-              </span>
-              {COMPANY.rating} ({COMPANY.reviewCount} Reviews)
+              <Award className="h-3.5 w-3.5 text-success" /> 25-Year Warranty
             </span>
             <span className="flex items-center gap-1.5">
-              <Clock className="h-4 w-4 text-sky" /> {COMPANY.yearsExperience} Years Experience
+              <Clock className="h-4 w-4 text-sky" /> {COMPANY.yearsCombined} Years Combined
             </span>
             <span className="flex items-center gap-1.5">
               <Leaf className="h-4 w-4 text-sky" /> Safe &amp; Eco-Friendly Cleaning

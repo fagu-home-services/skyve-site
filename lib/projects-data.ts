@@ -5,10 +5,10 @@ export const PRJ_HERO = {
   desc: "Explore our recent roofing and exterior projects across Washington State.",
   image: "",
   stats: [
-    { icon: "badge", value: "450+", label: "Projects Completed" },
-    { icon: "clock", value: "15+", label: "Years Experience" },
-    { icon: "star", value: "4.9", label: "Client Rating", star: true },
-    { icon: "shield", value: "2", label: "Year Workmanship Warranty" },
+    { icon: "badge", value: "20+", label: "Years Combined Experience" },
+    { icon: "shield", value: "Licensed", label: "& Insured" },
+    { icon: "clock", value: "25", label: "Year Workmanship Warranty" },
+    { icon: "mappin", value: "King & Snohomish", label: "Counties Served" },
   ],
 };
 

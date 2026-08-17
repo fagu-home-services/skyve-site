@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowRight, Play, Star, Clock, CheckCircle2 } from "lucide-react";
+import { ArrowRight, Play, Clock, CheckCircle2, Award } from "lucide-react";
 import { Breadcrumb } from "@/components/shared/Breadcrumb";
 import { COMPANY } from "@/lib/company";
 import { VENT_HERO_IMAGE, WHY_VENTILATION, TEMP_COMPARISON } from "@/lib/ventilation-data";
@@ -58,15 +58,10 @@ export function VentilationHero() {
 
           <div className="mt-7 flex flex-wrap items-center gap-x-6 gap-y-3 text-xs font-medium text-clear">
             <span className="flex items-center gap-1.5 rounded-md bg-clear/10 px-2.5 py-1.5">
-              <span className="flex gap-0.5">
-                {Array.from({ length: 5 }).map((_, i) => (
-                  <Star key={i} className="h-3.5 w-3.5 fill-success text-success" />
-                ))}
-              </span>
-              {COMPANY.rating} ({COMPANY.reviewCount} Reviews)
+              <Award className="h-3.5 w-3.5 text-success" /> 25-Year Warranty
             </span>
             <span className="flex items-center gap-1.5">
-              <Clock className="h-4 w-4 text-sky" /> {COMPANY.yearsExperience} Years Experience
+              <Clock className="h-4 w-4 text-sky" /> {COMPANY.yearsCombined} Years Combined
             </span>
             <span className="text-sky-soft/80">Energy Efficient</span>
             <span className="text-sky-soft/80">Improved Roof Lifespan</span>

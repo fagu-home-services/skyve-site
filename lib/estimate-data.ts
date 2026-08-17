@@ -26,7 +26,7 @@ export const AERIAL_IMAGE = "/images/home-day-4.webp";
 
 export const ESTIMATE_STATS = [
   { icon: "radar", value: "99%+", label: "Aerial Accuracy" },
-  { icon: "file", value: "10,000+", label: "Projects Analyzed" },
+  { icon: "file", value: "Itemized", label: "Line-by-line pricing" },
   { icon: "clock", value: "45 sec", label: "Average Time" },
   { icon: "shield", value: "100%", label: "Data Security" },
 ] as const;

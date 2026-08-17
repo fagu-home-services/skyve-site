@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowRight, Star, MapPin } from "lucide-react";
+import { ArrowRight, MapPin, Award } from "lucide-react";
 import { Breadcrumb } from "@/components/shared/Breadcrumb";
 import { COMPANY } from "@/lib/company";
 import { MAINTENANCE_HERO_IMAGE, HERO_TRUST, DASHBOARD } from "@/lib/maintenance-data";
@@ -55,12 +55,7 @@ export function MaintenanceHero() {
 
           <div className="mt-7 flex flex-wrap items-center gap-x-6 gap-y-3 text-xs font-medium text-clear">
             <span className="flex items-center gap-1.5 rounded-md bg-clear/10 px-2.5 py-1.5">
-              <span className="flex gap-0.5">
-                {Array.from({ length: 5 }).map((_, i) => (
-                  <Star key={i} className="h-3.5 w-3.5 fill-success text-success" />
-                ))}
-              </span>
-              {COMPANY.rating} ({COMPANY.reviewCount} Reviews)
+              <Award className="h-3.5 w-3.5 text-success" /> 25-Year Warranty
             </span>
             {HERO_TRUST.map((t) => (
               <span key={t} className="text-sky-soft/80">
