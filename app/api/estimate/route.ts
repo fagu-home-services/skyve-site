@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { computeEstimate, pitchToSlope, type SlopeKey } from "@/lib/estimate-config";
+import { buildingsNear, distMeters } from "@/lib/footprints";
 
 /**
  * Instant Estimate — measure a roof and compute an APPROXIMATE price.
@@ -151,18 +152,51 @@ export async function POST(req: Request) {
       return NextResponse.json({ ok: true, coverage: false, reason: "low_confidence", address: formatted, lat, lng });
     }
 
+    // ── Add other structures on the lot (shed/garage) that Solar's findClosest
+    //    missed. Footprint ÷ cos(pitch) ≈ sloped roof area for those. ──
+    const cosPitch = Math.cos((roof.avgPitch * Math.PI) / 180) || 1;
+    const M2FT = 10.7639;
+    const structures: { label: string; kind: "main" | "secondary"; areaSqft: number; areaM2: number }[] = [
+      { label: "Main roof", kind: "main", areaSqft: Math.round(roof.areaMeters2 * M2FT), areaM2: Math.round(roof.areaMeters2) },
+    ];
+    let totalSlopedM2 = roof.areaMeters2;
+    const plat = lat;
+    const plng = lng;
+    try {
+      const buildings = await buildingsNear(plat, plng, 28);
+      if (buildings.length > 1) {
+        const withDist = buildings
+          .map((b) => ({ b, d: distMeters([plat, plng], b.centroid) }))
+          .sort((a, z) => a.d - z.d);
+        const mainFp = withDist[0].b;
+        let n = 1;
+        for (const { b } of withDist.slice(1)) {
+          // outbuilding on the same lot: close to the main house, not a big neighbor
+          if (distMeters(mainFp.centroid, b.centroid) <= 14 && b.areaM2 < mainFp.areaM2 * 0.95) {
+            const slopedM2 = b.areaM2 / cosPitch;
+            totalSlopedM2 += slopedM2;
+            n += 1;
+            structures.push({ label: `Structure ${n}`, kind: "secondary", areaSqft: Math.round(slopedM2 * M2FT), areaM2: Math.round(slopedM2) });
+          }
+        }
+      }
+    } catch {
+      /* footprint lookup failed → main only */
+    }
+
     const suggested = pitchToSlope(roof.avgPitch);
     const slope = slopeOverride || suggested;
-    const est = computeEstimate(roof.areaMeters2, slope, roof.facets);
+    const est = computeEstimate(totalSlopedM2, slope, roof.facets);
     return NextResponse.json({
       ok: true,
       coverage: true,
       address: formatted,
       lat,
       lng,
-      areaMeters2: roof.areaMeters2,
+      areaMeters2: totalSlopedM2,
       suggestedSlope: suggested,
       imageryQuality: roof.imageryQuality,
+      structures,
       mapUrl: `/api/roof-image/?lat=${lat}&lng=${lng}`,
       ...est,
       ...(body.debug
