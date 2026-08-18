@@ -294,12 +294,7 @@ export function RoofConfigurator({
                 <p className="font-serif text-3xl font-extrabold text-ridge">{money(result.total)}</p>
               </div>
 
-              <div className="mt-4 rounded-lg bg-ridge/5 p-3 text-sm">
-                <p className="font-semibold text-horizon">Financing available</p>
-                <p className="text-xs text-ink-50">As low as <b className="text-horizon">{money(result.monthly)}/mo</b></p>
-              </div>
-
-              <div className="mt-4 space-y-2.5">
+              <div className="mt-5 space-y-2.5">
                 <button onClick={() => onRequestInspection?.(summary(), result.total)} className="flex w-full items-center justify-center gap-2 rounded-lg bg-accent px-5 py-3.5 text-sm font-bold text-clear shadow-card hover:bg-accent-hover">
                   <CalendarCheck className="h-4 w-4" /> Request Inspection
                 </button>

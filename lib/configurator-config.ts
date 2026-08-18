@@ -75,8 +75,8 @@ export const SKYLIGHT_SIZES: { id: string; label: string; price: number }[] = [
 export const GUTTER_PERIMETER_FACTOR = 0.6; // eaves ≈ 60% of the outline
 export const FASCIA_PERIMETER_FACTOR = 0.9; // fascia runs most edges
 
-export const TAX_RATE = 0.102; // King County, WA — PLACEHOLDER, confirm
-export const FINANCE = { apr: 0.0799, termMonths: 84 }; // PLACEHOLDER
+export const TAX_RATE = 0.103; // King County, WA (confirmed)
+export const FINANCE = { apr: 0.0799, termMonths: 84 }; // unused — Skyve doesn't offer financing yet
 
 /** Plywood cost — Skyve's tier: $85/sheet, or $75/sheet when replacing >20. */
 export function plywoodCost(sheets: number): number {
