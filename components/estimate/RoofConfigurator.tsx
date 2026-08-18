@@ -20,6 +20,7 @@ type Props = {
   stories?: string;
   builtYear?: string;
   mapUrl?: string | null;
+  embedded?: boolean; // inside the estimate flow → hide the standalone header
   onRequestInspection?: (summary: string, total: number) => void;
   onSaveEstimate?: (summary: string, total: number) => void;
 };
@@ -35,6 +36,7 @@ export function RoofConfigurator({
   stories = "2 Stories",
   builtYear = "2012",
   mapUrl = null,
+  embedded = false,
   onRequestInspection,
   onSaveEstimate,
 }: Props) {
@@ -80,26 +82,28 @@ export function RoofConfigurator({
   const card = "rounded-2xl border border-mist bg-clear";
 
   return (
-    <div className="min-h-screen bg-mist-soft">
-      <header className="border-b border-mist bg-clear">
-        <div className="container-skyve flex items-center justify-between gap-4 py-3">
-          <span className="font-serif text-lg font-extrabold tracking-tight text-horizon">
-            SKYVE <span className="text-xs font-semibold text-ink-50">ROOFING &amp; EXTERIORS</span>
-          </span>
-          <ol className="hidden items-center gap-2 text-xs font-semibold text-ink-50 md:flex">
-            {WIZARD.map((s, i) => (
-              <li key={s} className="flex items-center gap-2">
-                <span className={`grid h-5 w-5 place-items-center rounded-full text-[10px] ${i === 2 ? "bg-ridge text-clear" : "bg-mist text-ink-50"}`}>{i + 1}</span>
-                <span className={i === 2 ? "text-horizon" : ""}>{s}</span>
-                {i < WIZARD.length - 1 && <span className="mx-1 h-px w-6 bg-mist" />}
-              </li>
-            ))}
-          </ol>
-          <a href={COMPANY.phoneHref} className="flex items-center gap-1.5 text-sm font-bold text-horizon">
-            <Phone className="h-4 w-4 text-ridge" /> {COMPANY.phone}
-          </a>
-        </div>
-      </header>
+    <div className={embedded ? "bg-mist-soft" : "min-h-screen bg-mist-soft"}>
+      {!embedded && (
+        <header className="border-b border-mist bg-clear">
+          <div className="container-skyve flex items-center justify-between gap-4 py-3">
+            <span className="font-serif text-lg font-extrabold tracking-tight text-horizon">
+              SKYVE <span className="text-xs font-semibold text-ink-50">ROOFING &amp; EXTERIORS</span>
+            </span>
+            <ol className="hidden items-center gap-2 text-xs font-semibold text-ink-50 md:flex">
+              {WIZARD.map((s, i) => (
+                <li key={s} className="flex items-center gap-2">
+                  <span className={`grid h-5 w-5 place-items-center rounded-full text-[10px] ${i === 2 ? "bg-ridge text-clear" : "bg-mist text-ink-50"}`}>{i + 1}</span>
+                  <span className={i === 2 ? "text-horizon" : ""}>{s}</span>
+                  {i < WIZARD.length - 1 && <span className="mx-1 h-px w-6 bg-mist" />}
+                </li>
+              ))}
+            </ol>
+            <a href={COMPANY.phoneHref} className="flex items-center gap-1.5 text-sm font-bold text-horizon">
+              <Phone className="h-4 w-4 text-ridge" /> {COMPANY.phone}
+            </a>
+          </div>
+        </header>
+      )}
 
       <div className="container-skyve py-6">
         <h1 className="font-serif text-2xl font-bold text-horizon">Customize Your Roof &amp; See Your Price</h1>

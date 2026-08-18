@@ -1,12 +1,10 @@
 /* Roof configurator — material categories (Good/Better/Best) + add-ons + pricing.
  *
- * Pricing sources:
- *  • Add-ons marked (SKYVE) are real prices from Fabricio.
- *  • Material $/square and skylight prices are MARKET estimates (2026, Seattle-
- *    adjusted) pending Skyve's confirmation. The UI shows a "Sample pricing" note
- *    while CONFIG_IS_PLACEHOLDER is true. */
+ * All prices below are confirmed by Skyve (material $/square, add-ons, tax).
+ * Every estimate still carries the standard "approximate, confirmed on the
+ * on-site inspection" disclaimer. */
 
-export const CONFIG_IS_PLACEHOLDER = true;
+export const CONFIG_IS_PLACEHOLDER = false;
 
 export type Grade = "Good" | "Better" | "Best";
 export type Tier = { grade: Grade; name: string; perSquare: number };

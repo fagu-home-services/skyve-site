@@ -10,6 +10,7 @@ import {
 } from "@/lib/estimate-config";
 import { submitLead } from "@/lib/lead-client";
 import { COMPANY } from "@/lib/company";
+import { RoofConfigurator } from "./RoofConfigurator";
 
 type Structure = {
   label: string;
@@ -27,6 +28,7 @@ type Est = {
   lat: number;
   lng: number;
   areaMeters2: number;
+  perimeterFt?: number;
   areaSqft: number;
   squares: number;
   facets: number;
@@ -63,14 +65,10 @@ function SlopeIcon({ k }: { k: SlopeKey }) {
   );
 }
 
-const TIERS: { key: "good" | "better" | "best"; name: string; tag?: string }[] = [
-  { key: "good", name: "Good" },
-  { key: "better", name: "Better", tag: "Most popular" },
-  { key: "best", name: "Best" },
-];
-
 export function RoofEstimator() {
-  const [step, setStep] = useState<"address" | "review" | "gate" | "result" | "nocoverage">("address");
+  const [step, setStep] = useState<"address" | "review" | "configure" | "gate" | "result" | "nocoverage">("address");
+  const [configSummary, setConfigSummary] = useState("");
+  const [configTotal, setConfigTotal] = useState(0);
   const [address, setAddress] = useState("");
   const [est, setEst] = useState<Est | null>(null);
   const [slope, setSlope] = useState<SlopeKey>("medium");
@@ -171,13 +169,9 @@ export function RoofEstimator() {
     e.preventDefault();
     if (loading || !est || !tiers || !result) return;
     setLoading(true);
-    const included = items.filter((i) => i.included);
-    const extras = included.filter((i) => i.kind !== "main").length;
     const summary =
-      `Instant estimate · ~${result.areaSqft.toLocaleString()} sq ft · ${est.facets} facets · ` +
-      `${COMPLEXITY_LABELS[result.complexity]} · ${SLOPE_LABELS[slope]} slope · ` +
-      `${included.length} structure${included.length === 1 ? "" : "s"}${extras ? ` (+${extras} beyond main)` : ""} · ` +
-      `Better ${money(tiers.better.low)}–${money(tiers.better.high)}`;
+      configSummary ||
+      `Instant estimate · ~${result.areaSqft.toLocaleString()} sq ft · ${est.facets} facets · ${SLOPE_LABELS[slope]} slope`;
     try {
       await submitLead({
         firstName: contact.firstName,
@@ -429,16 +423,37 @@ export function RoofEstimator() {
           </div>
 
           <button
-            onClick={() => setStep("gate")}
+            onClick={() => setStep("configure")}
             className="mt-6 flex w-full items-center justify-center gap-2 rounded-lg bg-accent px-5 py-4 text-sm font-bold text-clear shadow-card transition-colors hover:bg-accent-hover"
           >
-            See my price <ArrowRight className="h-4 w-4" />
+            Customize &amp; see my price <ArrowRight className="h-4 w-4" />
           </button>
           <button onClick={() => { setStep("address"); setEst(null); }} className="mt-3 w-full text-center text-xs text-ink-50 underline">
             Use a different address
           </button>
         </div>
       </section>
+    );
+  }
+
+  /* ---------- Step: configure (material + options + live price) ---------- */
+  if (step === "configure" && est && result) {
+    const proceed = (s: string, t: number) => {
+      setConfigSummary(s);
+      setConfigTotal(t);
+      setStep("gate");
+    };
+    return (
+      <RoofConfigurator
+        embedded
+        address={est.address}
+        areaSqft={result.areaSqft}
+        squares={result.squares}
+        perimeterFt={est.perimeterFt}
+        mapUrl={mapUrl}
+        onRequestInspection={proceed}
+        onSaveEstimate={proceed}
+      />
     );
   }
 
@@ -471,45 +486,34 @@ export function RoofEstimator() {
     );
   }
 
-  /* ---------- Step: result ---------- */
-  if (step === "result" && est && tiers && result) {
+  /* ---------- Step: result (confirmation) ---------- */
+  if (step === "result" && est) {
     return (
       <section className="bg-mist-soft py-12 lg:py-16">
-        <div className="mx-auto max-w-4xl px-4">
-          <div className="text-center">
-            <CheckCircle2 className="mx-auto h-10 w-10 text-success" />
-            <h2 className="mt-3 font-serif text-3xl font-bold text-horizon">Your approximate roof estimate</h2>
-            <p className="mt-2 text-sm text-ink-50">
-              {est.address} · ~{result.areaSqft.toLocaleString()} sq ft · {est.facets} facets ·{" "}
-              {COMPLEXITY_LABELS[result.complexity]} · {SLOPE_LABELS[slope]} slope
-            </p>
-          </div>
+        <div className="mx-auto max-w-2xl px-4 text-center">
+          <CheckCircle2 className="mx-auto h-12 w-12 text-success" />
+          <h2 className="mt-3 font-serif text-3xl font-bold text-horizon">You&apos;re all set!</h2>
+          <p className="mt-2 text-ink-70">
+            Thanks, {contact.firstName || "there"}. We&apos;ve saved your estimate for <b>{est.address}</b> and
+            our team will reach out to schedule your free on-site inspection.
+          </p>
 
-          <div className="mt-8 grid gap-5 lg:grid-cols-3">
-            {TIERS.map(({ key, name, tag }) => (
-              <div key={key} className={`relative rounded-2xl border bg-clear p-6 text-center shadow-card ${tag ? "border-ridge" : "border-mist"}`}>
-                {tag && <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-ridge px-3 py-1 text-xs font-bold text-clear">{tag}</span>}
-                <p className="font-serif text-lg font-bold text-horizon">{name}</p>
-                <p className="mt-3 font-serif text-2xl font-extrabold text-horizon sm:text-3xl">
-                  {money(tiers[key].low)}<span className="text-ink-50"> – </span>{money(tiers[key].high)}
-                </p>
-                <p className="mt-1 text-xs text-ink-50">approximate range</p>
-              </div>
-            ))}
-          </div>
+          {configTotal > 0 && (
+            <div className="mx-auto mt-6 max-w-sm rounded-2xl border border-ridge bg-clear p-6 shadow-card">
+              <p className="text-sm font-semibold text-horizon">Your customized estimate</p>
+              <p className="mt-1 font-serif text-4xl font-extrabold text-ridge">{money(configTotal)}</p>
+              <p className="mt-1 text-xs text-ink-50">approximate — confirmed on inspection</p>
+            </div>
+          )}
 
-          <div className="mt-8 rounded-xl border border-mist bg-clear p-5 text-center text-sm text-ink-70">
+          <div className="mt-8 rounded-xl border border-mist bg-clear p-5 text-sm text-ink-70">
             <p>
-              <b>This is an approximate estimate</b>, measured from satellite imagery — not an official
-              quote or contract. Your final price is confirmed after a free on-site inspection and
-              depends on the options you choose.
+              This is an approximate estimate, measured from satellite imagery — not an official quote or
+              contract. Your final price is confirmed after a free on-site inspection.
             </p>
             <div className="mt-5 flex flex-wrap justify-center gap-3">
               <a href={COMPANY.phoneHref} className="inline-flex items-center gap-2 rounded-lg bg-accent px-6 py-3.5 text-sm font-bold text-clear hover:bg-accent-hover">
-                <Phone className="h-4 w-4" /> Book my free inspection
-              </a>
-              <a href="/instant-estimate/manual/" className="inline-flex items-center gap-2 rounded-lg border border-mist px-6 py-3.5 text-sm font-semibold text-horizon hover:border-ridge">
-                Ask a question
+                <Phone className="h-4 w-4" /> {COMPANY.phone}
               </a>
             </div>
             <p className="mt-4 flex items-center justify-center gap-1.5 text-xs text-ink-50">
