@@ -31,27 +31,11 @@ export const CONFIG_CATEGORIES: Category[] = [
     ],
   },
   {
-    id: "cedar", label: "Cedar Shake", swatch: "#6b5335",
-    tiers: [
-      { grade: "Good", name: "Cedar Shingle", perSquare: 1150 },
-      { grade: "Better", name: "Hand-Split Shake", perSquare: 1420 },
-      { grade: "Best", name: "Premium Shake", perSquare: 1780 },
-    ],
-  },
-  {
-    id: "tile", label: "Tile", swatch: "#8a4a34",
-    tiers: [
-      { grade: "Good", name: "Concrete Tile", perSquare: 1020 },
-      { grade: "Better", name: "Clay Tile", perSquare: 1330 },
-      { grade: "Best", name: "Premium Clay", perSquare: 1690 },
-    ],
-  },
-  {
-    id: "flat", label: "Flat / Low-Slope", swatch: "#4a4e52",
+    id: "flat", label: "Flat (TPO/PVC)", swatch: "#4a4e52",
     tiers: [
       { grade: "Good", name: "TPO Membrane", perSquare: 720 },
       { grade: "Better", name: "PVC Membrane", perSquare: 940 },
-      { grade: "Best", name: "Premium PVC", perSquare: 1180 },
+      { grade: "Best", name: "Premium PVC (60 mil)", perSquare: 1180 },
     ],
   },
 ];
