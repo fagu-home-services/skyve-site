@@ -56,6 +56,49 @@ const ADD_PRESETS: { label: string; sqft: number }[] = [
   { label: "Large outbuilding", sqft: 600 },
 ];
 
+// Quick qualification (enriches the lead) — all optional.
+const PROJECT_TYPES = ["Full replacement", "Repair", "Insurance claim", "Not sure yet"];
+const TIMELINES = ["As soon as possible", "1–3 months", "Just exploring"];
+const ROOF_AGES = ["Under 10 years", "10–20 years", "20+ years", "Not sure"];
+
+// Reject malformed + throwaway emails (not full mailbox verification).
+const DISPOSABLE_EMAIL_DOMAINS = new Set([
+  "mailinator.com", "guerrillamail.com", "10minutemail.com", "tempmail.com", "temp-mail.org",
+  "yopmail.com", "trashmail.com", "sharklasers.com", "getnada.com", "throwawaymail.com",
+  "maildrop.cc", "fakeinbox.com", "dispostable.com", "mailnesia.com", "mintemail.com",
+]);
+function validEmail(raw: string): boolean {
+  const s = raw.trim().toLowerCase();
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(s)) return false;
+  return !DISPOSABLE_EMAIL_DOMAINS.has(s.split("@")[1]);
+}
+/** Normalize a US phone to 10 digits, or null if it doesn't look valid. */
+function normPhone(raw: string): string | null {
+  const d = raw.replace(/\D/g, "");
+  if (d.length === 10) return d;
+  if (d.length === 11 && d[0] === "1") return d.slice(1);
+  return null;
+}
+
+function ChipGroup({ options, value, onSelect }: { options: string[]; value: string; onSelect: (v: string) => void }) {
+  return (
+    <div className="mt-2 flex flex-wrap gap-2">
+      {options.map((o) => (
+        <button
+          key={o}
+          type="button"
+          onClick={() => onSelect(value === o ? "" : o)}
+          className={`rounded-full border px-3.5 py-1.5 text-sm font-medium transition-colors ${
+            value === o ? "border-ridge bg-ridge/5 text-ridge" : "border-mist text-ink-70 hover:border-ridge/40"
+          }`}
+        >
+          {o}
+        </button>
+      ))}
+    </div>
+  );
+}
+
 const HERO_BADGES = ["No Obligation", "100% Free", "Private & Secure"];
 
 /* Blueprint-style isometric roof for the landing hero. */
@@ -106,9 +149,12 @@ function SlopeIcon({ k }: { k: SlopeKey }) {
 }
 
 export function RoofEstimator({ onLanding }: { onLanding?: (isLanding: boolean) => void } = {}) {
-  const [step, setStep] = useState<"address" | "review" | "configure" | "gate" | "result" | "nocoverage">("address");
+  const [step, setStep] = useState<"address" | "review" | "configure" | "qualify" | "gate" | "result" | "nocoverage">("address");
   const [configSummary, setConfigSummary] = useState("");
   const [configTotal, setConfigTotal] = useState(0);
+  const [project, setProject] = useState("");
+  const [timeline, setTimeline] = useState("");
+  const [roofAge, setRoofAge] = useState("");
   const [address, setAddress] = useState("");
   const [est, setEst] = useState<Est | null>(null);
   const [slope, setSlope] = useState<SlopeKey>("medium");
@@ -231,10 +277,27 @@ export function RoofEstimator({ onLanding }: { onLanding?: (isLanding: boolean) 
   async function submitGate(e: React.FormEvent) {
     e.preventDefault();
     if (loading || !est || !tiers || !result) return;
+    if (!validEmail(contact.email)) {
+      setError("Please enter a valid email address.");
+      return;
+    }
+    if (!normPhone(contact.phone)) {
+      setError("Please enter a valid 10-digit US phone number.");
+      return;
+    }
+    setError("");
     setLoading(true);
-    const summary =
+    const base =
       configSummary ||
       `Instant estimate · ~${result.areaSqft.toLocaleString()} sq ft · ${est.facets} facets · ${SLOPE_LABELS[slope]} slope`;
+    const qual = [
+      project && `Project: ${project}`,
+      timeline && `Timeline: ${timeline}`,
+      roofAge && `Roof age: ${roofAge}`,
+    ]
+      .filter(Boolean)
+      .join(" · ");
+    const summary = qual ? `${base} · ${qual}` : base;
     try {
       await submitLead({
         firstName: contact.firstName,
@@ -247,10 +310,10 @@ export function RoofEstimator({ onLanding }: { onLanding?: (isLanding: boolean) 
         _hp: contact._hp,
       });
     } catch {
-      /* still show the price — the user did their part */
+      /* still continue — the user did their part */
     }
     setLoading(false);
-    setStep("result");
+    setStep("configure");
   }
 
   const box = "mx-auto max-w-3xl rounded-2xl border border-mist bg-clear p-6 shadow-card sm:p-8";
@@ -511,10 +574,10 @@ export function RoofEstimator({ onLanding }: { onLanding?: (isLanding: boolean) 
           </div>
 
           <button
-            onClick={() => setStep("configure")}
+            onClick={() => setStep("qualify")}
             className="mt-6 flex w-full items-center justify-center gap-2 rounded-lg bg-accent px-5 py-4 text-sm font-bold text-clear shadow-card transition-colors hover:bg-accent-hover"
           >
-            Customize &amp; see my price <ArrowRight className="h-4 w-4" />
+            Continue <ArrowRight className="h-4 w-4" />
           </button>
           <button onClick={() => { setStep("address"); setEst(null); }} className="mt-3 w-full text-center text-xs text-ink-50 underline">
             Use a different address
@@ -529,7 +592,19 @@ export function RoofEstimator({ onLanding }: { onLanding?: (isLanding: boolean) 
     const proceed = (s: string, t: number) => {
       setConfigSummary(s);
       setConfigTotal(t);
-      setStep("gate");
+      // Contact was already captured at the gate; enrich the lead with the final
+      // configured choices (fire-and-forget), then confirm.
+      void submitLead({
+        firstName: contact.firstName,
+        lastName: contact.lastName,
+        phone: contact.phone,
+        email: contact.email,
+        address: est.address,
+        service: "Roof Replacement (configured)",
+        message: s,
+        _hp: contact._hp,
+      }).catch(() => {});
+      setStep("result");
     };
     return (
       <RoofConfigurator
@@ -545,6 +620,43 @@ export function RoofEstimator({ onLanding }: { onLanding?: (isLanding: boolean) 
     );
   }
 
+  /* ---------- Step: qualify (quick lead-enriching questions) ---------- */
+  if (step === "qualify" && est) {
+    return (
+      <section className="bg-mist-soft py-12 lg:py-16">
+        <div className={box}>
+          <h2 className="text-center font-serif text-2xl font-bold text-horizon">A couple quick questions</h2>
+          <p className="mt-1 text-center text-sm text-ink-50">Helps us prepare the right estimate — all optional.</p>
+
+          <div className="mt-6 space-y-5">
+            <div>
+              <p className="text-sm font-semibold text-horizon">What are you looking to do?</p>
+              <ChipGroup options={PROJECT_TYPES} value={project} onSelect={setProject} />
+            </div>
+            <div>
+              <p className="text-sm font-semibold text-horizon">When are you hoping to start?</p>
+              <ChipGroup options={TIMELINES} value={timeline} onSelect={setTimeline} />
+            </div>
+            <div>
+              <p className="text-sm font-semibold text-horizon">How old is your current roof?</p>
+              <ChipGroup options={ROOF_AGES} value={roofAge} onSelect={setRoofAge} />
+            </div>
+          </div>
+
+          <button
+            onClick={() => setStep("gate")}
+            className="mt-7 flex w-full items-center justify-center gap-2 rounded-lg bg-accent px-5 py-4 text-sm font-bold text-clear shadow-card transition-colors hover:bg-accent-hover"
+          >
+            Continue <ArrowRight className="h-4 w-4" />
+          </button>
+          <button onClick={() => setStep("review")} className="mt-3 w-full text-center text-xs text-ink-50 underline">
+            Back
+          </button>
+        </div>
+      </section>
+    );
+  }
+
   /* ---------- Step: gate ---------- */
   if (step === "gate" && est) {
     const set = (k: keyof typeof contact) => (e: React.ChangeEvent<HTMLInputElement>) =>
@@ -552,17 +664,18 @@ export function RoofEstimator({ onLanding }: { onLanding?: (isLanding: boolean) 
     return (
       <section className="bg-mist-soft py-12 lg:py-16">
         <form onSubmit={submitGate} className={box}>
-          <h2 className="text-center font-serif text-2xl font-bold text-horizon">Almost done!</h2>
-          <p className="mt-1 text-center text-sm text-ink-50">Where should we send your estimate?</p>
+          <h2 className="text-center font-serif text-2xl font-bold text-horizon">See your estimate</h2>
+          <p className="mt-1 text-center text-sm text-ink-50">Enter your details and we&apos;ll show your customized price.</p>
           <input type="text" tabIndex={-1} autoComplete="off" value={contact._hp} onChange={set("_hp")} className="absolute left-[-9999px] h-0 w-0 opacity-0" aria-hidden="true" />
           <div className="mt-6 space-y-3">
             <div className="grid gap-3 sm:grid-cols-2">
               <input required value={contact.firstName} onChange={set("firstName")} placeholder="First name" className={input} />
               <input required value={contact.lastName} onChange={set("lastName")} placeholder="Last name" className={input} />
             </div>
-            <input required type="tel" value={contact.phone} onChange={set("phone")} placeholder="Phone" className={input} />
+            <input required type="tel" value={contact.phone} onChange={set("phone")} placeholder="Phone (10-digit US)" className={input} />
             <input required type="email" value={contact.email} onChange={set("email")} placeholder="Email" className={input} />
           </div>
+          {error && <p className="mt-3 text-center text-sm font-medium text-accent">{error}</p>}
           <button type="submit" disabled={loading} className="mt-5 flex w-full items-center justify-center gap-2 rounded-lg bg-accent px-5 py-4 text-sm font-bold text-clear shadow-card transition-colors hover:bg-accent-hover disabled:opacity-70">
             {loading ? <><Loader2 className="h-4 w-4 animate-spin" /> Calculating…</> : <>Show my price <ArrowRight className="h-4 w-4" /></>}
           </button>
