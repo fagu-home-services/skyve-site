@@ -1,4 +1,8 @@
+"use client";
+
 import Link from "next/link";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { ShieldCheck, MapPin, Award, ArrowRight, Lock, ClipboardCheck, BadgeCheck } from "lucide-react";
 import { COMPANY } from "@/lib/company";
 import { HERO_IMAGE } from "@/lib/site-data";
@@ -11,6 +15,13 @@ const TRUST = [
 ];
 
 export function Hero() {
+  const [addr, setAddr] = useState("");
+  const router = useRouter();
+  const go = (e: React.FormEvent) => {
+    e.preventDefault();
+    const t = addr.trim();
+    router.push(t ? `/instant-estimate/?address=${encodeURIComponent(t)}` : "/instant-estimate/");
+  };
   return (
     <section className="relative overflow-hidden bg-horizon-deep">
       {/* Background */}
@@ -47,7 +58,7 @@ export function Hero() {
           </p>
           <div className="mt-8 flex flex-wrap gap-4">
             <Link
-              href="/estimate/instant"
+              href="/instant-estimate/"
               className="inline-flex items-center gap-2 rounded-lg bg-accent px-7 py-3.5 text-sm font-semibold text-clear shadow-elevated transition-colors hover:bg-accent-hover"
             >
               Get Instant Estimate
@@ -79,7 +90,7 @@ export function Hero() {
           <h2 className="font-serif text-2xl font-bold text-horizon">
             Get Your Roof Estimate
           </h2>
-          <p className="mt-1 text-sm text-ink-50">Fast. Accurate. No pressure.</p>
+          <p className="mt-1 text-sm text-ink-50">Fast. Instant estimate. No pressure.</p>
 
           {/* Steps */}
           <div className="mt-6 flex items-center">
@@ -97,14 +108,17 @@ export function Hero() {
             ))}
           </div>
 
-          <div className="mt-6">
-            <label className="text-sm font-semibold text-ink-90">
+          <form onSubmit={go} className="mt-6">
+            <label htmlFor="hero-address" className="text-sm font-semibold text-ink-90">
               1. Property Address
             </label>
             <div className="mt-2 flex items-center gap-2 rounded-lg border border-mist bg-mist-soft px-3.5 py-3 focus-within:border-ridge">
               <MapPin className="h-4 w-4 text-ink-50" />
               <input
+                id="hero-address"
                 type="text"
+                value={addr}
+                onChange={(e) => setAddr(e.target.value)}
                 placeholder="Enter your property address"
                 className="w-full bg-transparent text-sm text-ink-90 outline-none placeholder:text-ink-50"
               />
@@ -112,14 +126,14 @@ export function Hero() {
             <p className="mt-2 text-xs text-ink-50">
               We&apos;ll use aerial data to measure your roof.
             </p>
-          </div>
 
-          <Link
-            href="/estimate/instant"
-            className="mt-5 flex w-full items-center justify-center gap-2 rounded-lg bg-ridge px-5 py-3.5 text-sm font-semibold text-clear transition-colors hover:bg-ridge-bright"
-          >
-            Next Step <ArrowRight className="h-4 w-4" />
-          </Link>
+            <button
+              type="submit"
+              className="mt-5 flex w-full items-center justify-center gap-2 rounded-lg bg-ridge px-5 py-3.5 text-sm font-semibold text-clear transition-colors hover:bg-ridge-bright"
+            >
+              Next Step <ArrowRight className="h-4 w-4" />
+            </button>
+          </form>
 
           <p className="mt-4 flex items-center justify-center gap-1.5 text-xs text-ink-50">
             <Lock className="h-3.5 w-3.5" />

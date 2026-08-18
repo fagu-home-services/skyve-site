@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import {
   MapPin, ArrowRight, Loader2, Lock, CheckCircle2, Phone, ShieldCheck,
   Home, Building2, Plus, Trash2,
@@ -129,16 +129,32 @@ export function RoofEstimator() {
     setShowAdd(false);
   }
 
-  async function start(e: React.FormEvent) {
+  // Deep-link: /instant-estimate?address=… (e.g. from the homepage hero) →
+  // prefill and measure straight away.
+  useEffect(() => {
+    const a = new URLSearchParams(window.location.search).get("address");
+    if (a && a.trim()) {
+      setAddress(a);
+      runEstimate(a);
+    }
+    // run once on mount
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  function start(e: React.FormEvent) {
     e.preventDefault();
-    if (!address.trim() || loading) return;
+    runEstimate(address);
+  }
+
+  async function runEstimate(addr: string) {
+    if (!addr.trim() || loading) return;
     setLoading(true);
     setError("");
     try {
       const r = await fetch("/api/estimate/", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ address }),
+        body: JSON.stringify({ address: addr }),
       });
       const d = (await r.json()) as Est & { error?: string };
       if (!d.ok) {
