@@ -23,7 +23,7 @@ export function MaterialCTA({ data }: { data: MaterialPage }) {
           </div>
           <div className="flex flex-wrap gap-4">
             <Link
-              href="/estimate/instant"
+              href="/instant-estimate/"
               className="inline-flex items-center gap-2 rounded-lg bg-accent px-6 py-3.5 text-sm font-semibold text-clear shadow-elevated transition-colors hover:bg-accent-hover"
             >
               Get Your Free Estimate <ArrowRight className="h-4 w-4" />

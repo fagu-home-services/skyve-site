@@ -82,7 +82,7 @@ export const SITE_ROUTES: SiteRoute[] = [
     "dynamic": false
   },
   {
-    "path": "/estimate/instant",
+    "path": "/instant-estimate",
     "photos": 1,
     "dynamic": false
   },

@@ -27,7 +27,7 @@ export default function ServicesPage() {
           subtitle="Get a free estimate and expert recommendations from our team."
           primary={{
             label: "Get Your Free Estimate",
-            href: "/estimate/instant",
+            href: "/instant-estimate/",
             icon: <ArrowRight className="h-4 w-4" />,
           }}
           secondary={{

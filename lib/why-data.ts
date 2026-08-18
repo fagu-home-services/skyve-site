@@ -22,7 +22,7 @@ export const RATING = {
 };
 
 export const PROMISE_CARDS = [
-  { icon: "dollar", title: "Transparent Pricing", desc: "Clear, detailed estimates with no hidden fees or surprises. You'll know exactly what you're paying for.", cta: { label: "Learn More", href: "/estimate/instant" } },
+  { icon: "dollar", title: "Transparent Pricing", desc: "Clear, detailed estimates with no hidden fees or surprises. You'll know exactly what you're paying for.", cta: { label: "Learn More", href: "/instant-estimate/" } },
   { icon: "badge", title: "Certified & Trusted", desc: "We hold top industry certifications and maintain full licensing, bonding, and insurance.", cta: { label: "Learn More", href: "/licenses-insurance" } },
   { icon: "document", title: "Proven Process", desc: "Our streamlined process keeps your project on schedule, on budget, and stress-free.", cta: { label: "Learn More", href: "#" } },
   { icon: "shield", title: "Industry-Leading Warranty", desc: "We stand behind our work with robust warranties on both materials and craftsmanship.", cta: { label: "Learn More", href: "/warranty" } },

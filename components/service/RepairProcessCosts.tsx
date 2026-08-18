@@ -46,7 +46,7 @@ export function RepairProcessCosts({ data }: { data: ServicePage }) {
             </ul>
 
             <Link
-              href="/estimate/instant"
+              href="/instant-estimate/"
               className="mt-5 flex items-center justify-center gap-2 rounded-lg border border-ridge/30 px-4 py-3 text-sm font-semibold text-ridge transition-colors hover:border-ridge hover:bg-mist-soft"
             >
               Get Your Free Estimate <ArrowRight className="h-4 w-4" />

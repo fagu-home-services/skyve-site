@@ -20,7 +20,7 @@ export function KCHero() {
             <a href="#start-here" className="inline-flex items-center gap-2 rounded-lg bg-ridge px-6 py-3.5 text-sm font-semibold text-clear shadow-card transition-colors hover:bg-ridge-bright">
               Browse Articles <ArrowRight className="h-4 w-4" />
             </a>
-            <Link href="/estimate/instant" className="inline-flex items-center gap-2 rounded-lg border border-ridge/30 px-6 py-3.5 text-sm font-semibold text-ridge transition-colors hover:border-ridge hover:bg-mist-soft">
+            <Link href="/instant-estimate/" className="inline-flex items-center gap-2 rounded-lg border border-ridge/30 px-6 py-3.5 text-sm font-semibold text-ridge transition-colors hover:border-ridge hover:bg-mist-soft">
               Get Instant Estimate <ArrowRight className="h-4 w-4" />
             </Link>
           </div>

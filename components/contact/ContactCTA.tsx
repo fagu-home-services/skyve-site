@@ -25,7 +25,7 @@ export function ContactCTA() {
             Call Now <Phone className="h-4 w-4" />
           </a>
           <Link
-            href="/estimate/instant"
+            href="/instant-estimate/"
             className="inline-flex items-center gap-2 rounded-lg bg-accent px-5 py-3 text-sm font-semibold text-clear transition-colors hover:bg-accent-hover"
           >
             Get Estimate <ArrowRight className="h-4 w-4" />

@@ -34,7 +34,7 @@ export default function RoofRepairPage() {
           subtitle={data.ctaSubtitle}
           primary={{
             label: "Get Your Free Estimate",
-            href: "/estimate/instant",
+            href: "/instant-estimate/",
             icon: <ArrowRight className="h-4 w-4" />,
           }}
           secondary={{

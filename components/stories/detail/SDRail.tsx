@@ -57,7 +57,7 @@ export function SDRail() {
           Let our team deliver the same quality and peace of mind to your home.
         </p>
         <Link
-          href="/estimate/instant"
+          href="/instant-estimate/"
           className="mt-5 flex w-full items-center justify-center gap-2 rounded-lg bg-accent px-5 py-3 text-sm font-semibold text-clear transition-colors hover:bg-accent-hover"
         >
           Get Your Free Estimate <ArrowRight className="h-4 w-4" />

@@ -74,7 +74,7 @@ export const FAQ_RESOURCES = {
     { title: "Payment Options", desc: "Ask us about paying for your project", href: "/financing" },
     { title: "Roof Maintenance", desc: "Keep your roof in top condition", href: "/services" },
   ],
-  link: { label: "Get a Free Estimate", href: "/estimate/instant" },
+  link: { label: "Get a Free Estimate", href: "/instant-estimate" },
 };
 
 export const FAQ_CTA = {

@@ -76,7 +76,7 @@ export function SiteHeader() {
           </a>
           {/* Staff / ops — PHP painel (not the customer portal) */}
           <a
-            href="/painel/login.php"
+            href="/login"
             aria-label="Staff login"
             title="Staff login"
             className={`flex h-9 w-9 items-center justify-center rounded-lg transition-colors ${
@@ -88,7 +88,7 @@ export function SiteHeader() {
             <LogIn className="h-4.5 w-4.5 h-[18px] w-[18px]" />
           </a>
           <Link
-            href="/estimate/instant"
+            href="/instant-estimate/"
             className="rounded-lg bg-accent px-5 py-2.5 text-sm font-semibold text-clear shadow-card transition-colors hover:bg-accent-hover"
           >
             Get Estimate
@@ -98,7 +98,7 @@ export function SiteHeader() {
         {/* Mobile: staff login + menu */}
         <div className="flex items-center gap-2 lg:hidden">
           <a
-            href="/painel/login.php"
+            href="/login"
             aria-label="Staff login"
             title="Staff login"
             className={`flex h-9 w-9 items-center justify-center rounded-lg ${
@@ -152,14 +152,14 @@ export function SiteHeader() {
                 <Phone className="h-4 w-4" /> {COMPANY.phone}
               </a>
               <a
-                href="/painel/login.php"
+                href="/login"
                 onClick={() => setMobileOpen(false)}
                 className="flex items-center gap-2 px-2 py-2 text-sm font-medium text-ink-70"
               >
                 <LogIn className="h-4 w-4" /> Staff login
               </a>
               <Link
-                href="/estimate/instant"
+                href="/instant-estimate/"
                 onClick={() => setMobileOpen(false)}
                 className="rounded-lg bg-accent px-5 py-3 text-center text-sm font-semibold text-clear"
               >

@@ -19,7 +19,7 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
-const CTA = "/estimate/instant";
+const CTA = "/instant-estimate/";
 
 const TRUST = [
   { icon: Award, label: `${COMPANY.warrantyYears}-year warranty`, sub: "Workmanship" },

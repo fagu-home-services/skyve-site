@@ -35,8 +35,10 @@ export const LAUNCH_PATHS: readonly string[] = [
   "/service-area",                // coverage = credibility
   "/legal/privacy",               // required
   "/legal/terms",                 // required
-  "/estimate",                    // redirects to /estimate/instant
-  "/estimate/instant",            // the working lead form
+  "/instant-estimate",            // the instant estimator (measure → configure funnel)
+  "/instant-estimate/manual",     // manual fallback when Solar can't measure
+  "/estimate",                    // redirects to /instant-estimate
+  "/estimate/instant",            // redirects to /instant-estimate (legacy path)
   "/free-estimate",               // paid-traffic landing page (self-noindex)
 
   // ── Fase 1.5 — libera as 33 cidades assim que o template for revisado ──

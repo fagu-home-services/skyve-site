@@ -14,7 +14,7 @@ const EXCLUDE = new Set(["/login", "/all-pages", "/estimate", "/free-estimate"])
 // rough priority by section (home highest, cities/services strong for SEO)
 function meta(path: string): { priority: number; changeFrequency: MetadataRoute.Sitemap[number]["changeFrequency"] } {
   if (path === "/") return { priority: 1, changeFrequency: "weekly" };
-  if (path === "/estimate/instant" || path === "/contact") return { priority: 0.9, changeFrequency: "monthly" };
+  if (path === "/instant-estimate" || path === "/contact") return { priority: 0.9, changeFrequency: "monthly" };
   if (path.startsWith("/services") || path.startsWith("/exteriors") || path.startsWith("/materials"))
     return { priority: 0.8, changeFrequency: "monthly" };
   if (path.startsWith("/roofing-") || path === "/service-area") return { priority: 0.7, changeFrequency: "monthly" };

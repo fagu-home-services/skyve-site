@@ -56,7 +56,7 @@ export function CityPage({ city }: { city: CityData }) {
               <p className="mt-4 max-w-md text-sm leading-relaxed text-mist-soft/80">{city.heroDesc}</p>
 
               <div className="mt-6 flex flex-wrap gap-3">
-                <Link href="/estimate/instant" className="inline-flex items-center gap-2 rounded-lg bg-accent px-6 py-3.5 text-sm font-semibold text-clear shadow-card transition-colors hover:bg-accent-hover">
+                <Link href="/instant-estimate/" className="inline-flex items-center gap-2 rounded-lg bg-accent px-6 py-3.5 text-sm font-semibold text-clear shadow-card transition-colors hover:bg-accent-hover">
                   Get Free Roof Estimate <ArrowRight className="h-4 w-4" />
                 </Link>
                 <a href={COMPANY.phoneHref} className="inline-flex items-center gap-2 rounded-lg border border-clear/25 px-6 py-3.5 text-sm font-semibold text-clear transition-colors hover:bg-clear/10">
@@ -176,7 +176,7 @@ export function CityPage({ city }: { city: CityData }) {
               <div className="rounded-2xl bg-horizon-deep p-7 text-clear shadow-elevated">
                 <h3 className="font-serif text-lg font-bold">Ready to Protect Your {city.name} Home?</h3>
                 <p className="mt-1 text-sm text-mist-soft/70">Get a free, no-obligation roof estimate today.</p>
-                <Link href="/estimate/instant" className="mt-4 inline-flex items-center gap-2 rounded-lg bg-accent px-5 py-3 text-sm font-semibold text-clear transition-colors hover:bg-accent-hover">
+                <Link href="/instant-estimate/" className="mt-4 inline-flex items-center gap-2 rounded-lg bg-accent px-5 py-3 text-sm font-semibold text-clear transition-colors hover:bg-accent-hover">
                   Get Free Estimate <ArrowRight className="h-4 w-4" />
                 </Link>
                 <a href={COMPANY.phoneHref} className="mt-4 flex items-center gap-2 text-sm font-semibold text-sky hover:text-clear">
@@ -244,7 +244,7 @@ export function CityPage({ city }: { city: CityData }) {
                   <p className="mt-1 text-sm text-mist-soft/70">
                     Get an honest, itemized estimate — no pressure.
                   </p>
-                  <Link href="/estimate/instant" className="mt-4 inline-flex items-center justify-center gap-2 rounded-lg bg-accent px-5 py-3 text-sm font-semibold text-clear transition-colors hover:bg-accent-hover">
+                  <Link href="/instant-estimate/" className="mt-4 inline-flex items-center justify-center gap-2 rounded-lg bg-accent px-5 py-3 text-sm font-semibold text-clear transition-colors hover:bg-accent-hover">
                     Get Free Estimate <ArrowRight className="h-4 w-4" />
                   </Link>
                 </div>

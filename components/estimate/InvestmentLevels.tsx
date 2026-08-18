@@ -68,7 +68,7 @@ export function InvestmentLevels() {
               </ul>
 
               <Link
-                href={liveHref("/estimate/detailed", "/estimate/instant")}
+                href={liveHref("/estimate/detailed", "/instant-estimate/")}
                 className="mt-6 inline-flex items-center gap-1 text-sm font-semibold text-ridge transition-colors hover:text-accent"
               >
                 View Full Breakdown <ArrowRight className="h-4 w-4" />

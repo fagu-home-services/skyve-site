@@ -33,7 +33,7 @@ export function VentilationCTA() {
               Schedule Ventilation Inspection <ArrowRight className="h-4 w-4" />
             </Link>
             <Link
-              href="/estimate/instant"
+              href="/instant-estimate/"
               className="inline-flex items-center gap-2 rounded-lg border border-clear/40 bg-clear/5 px-6 py-3.5 text-sm font-semibold text-clear backdrop-blur-sm transition-colors hover:bg-clear/10"
             >
               Get Free Estimate <CalendarDays className="h-4 w-4" />

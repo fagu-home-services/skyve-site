@@ -35,7 +35,7 @@ export default function FinancingPage() {
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
               <Link
-                href="/estimate/instant"
+                href="/instant-estimate/"
                 className="inline-flex items-center gap-2 rounded-lg bg-accent px-7 py-3.5 text-sm font-semibold text-clear shadow-card transition-colors hover:bg-accent-hover"
               >
                 Get My Free Estimate <ArrowRight className="h-4 w-4" />

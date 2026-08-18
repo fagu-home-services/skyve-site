@@ -78,7 +78,7 @@ export const ROOF_REPLACEMENT: KCCategory = {
     { tag: "Insurance", title: "Will Insurance Pay for a New Roof? What You Need to Know", read: "10 min read", views: "8K views", image: img("1572120360610-d971b9d7767c") },
     { tag: "Case Study", title: "Full Roof Replacement in Bellevue, WA (Real Project)", read: "12 min read", views: "7K views", image: img("1600596542815-ffad4c1539a9") },
   ],
-  cta: { title: "Ready to Replace Your Roof?", desc: "Get a free, no-obligation estimate in less than 60 seconds.", button: "Get Instant Estimate", href: "/estimate/instant" },
+  cta: { title: "Ready to Replace Your Roof?", desc: "Get a free, no-obligation estimate in less than 60 seconds.", button: "Get Instant Estimate", href: "/instant-estimate" },
   popularHeading: "Popular Topics",
   popular: [
     { label: "Roof Replacement Cost", count: 18 },
@@ -160,7 +160,7 @@ export const ROOF_REPAIR: KCCategory = {
     { tag: "Roof Maintenance", title: "Prevent Small Repairs from Becoming Big Problems", read: "6 min read", views: "9K views", image: img("1600596542815-ffad4c1539a9") },
     { tag: "When to Call a Pro", title: "When Roof Repair Is Not Enough", read: "6 min read", views: "8K views", image: img("1580587771525-78b9dba3b914") },
   ],
-  cta: { title: "Need Your Roof Repaired?", desc: "Get a free, no-obligation assessment from our roofing experts.", button: "Get Free Repair Estimate", href: "/estimate/instant" },
+  cta: { title: "Need Your Roof Repaired?", desc: "Get a free, no-obligation assessment from our roofing experts.", button: "Get Free Repair Estimate", href: "/instant-estimate" },
   popularHeading: "Popular Repair Topics",
   popular: [
     { label: "Roof Leaks", count: 21 },
@@ -243,7 +243,7 @@ export const SHINGLES: KCCategory = {
     { tag: "Warranty", title: "Understanding Shingle Warranties", read: "9 min read", views: "11K views", image: img("1600596542815-ffad4c1539a9") },
     { tag: "Replacement", title: "When to Replace Shingles vs Repair", read: "9 min read", views: "8K views", image: img("1580587771525-78b9dba3b914") },
   ],
-  cta: { title: "Not Sure Which Shingle Is Best?", desc: "Our experts can help you choose the perfect shingle for your home and budget.", button: "Get Free Shingle Recommendation", href: "/estimate/instant" },
+  cta: { title: "Not Sure Which Shingle Is Best?", desc: "Our experts can help you choose the perfect shingle for your home and budget.", button: "Get Free Shingle Recommendation", href: "/instant-estimate" },
   popularHeading: "Popular Shingle Topics",
   popular: [
     { label: "Architectural Shingles", count: 16 },
@@ -327,7 +327,7 @@ export const METAL_ROOFING: KCCategory = {
     { tag: "Case Study", title: "Real Metal Roofing Projects in Washington", read: "9 min read", views: "9K views", image: img("1600596542815-ffad4c1539a9") },
     { tag: "Warranty", title: "Understanding Metal Roof Warranties", read: "6 min read", views: "5K views", image: img("1580587771525-78b9dba3b914") },
   ],
-  cta: { title: "Considering a Metal Roof?", desc: "Get a free, no-obligation estimate and expert recommendation.", button: "Get Free Metal Roof Estimate", href: "/estimate/instant" },
+  cta: { title: "Considering a Metal Roof?", desc: "Get a free, no-obligation estimate and expert recommendation.", button: "Get Free Metal Roof Estimate", href: "/instant-estimate" },
   popularHeading: "Popular Metal Roof Topics",
   popular: [
     { label: "Standing Seam Metal Roofing", count: 16 },
@@ -411,7 +411,7 @@ export const SKYLIGHTS: KCCategory = {
     { tag: "Energy Efficiency", title: "How Skylights Improve Energy Efficiency in Your Home", read: "6 min read", views: "5K views", image: img("1600585154340-be6161a56a0c") },
     { tag: "Case Study", title: "Real Skylight Projects in Washington Homes", read: "6 min read", views: "5K views", image: img("1600596542815-ffad4c1539a9") },
   ],
-  cta: { title: "Planning a Skylight Project?", desc: "Get a free, no-obligation estimate from our skylight experts.", button: "Get Free Skylight Estimate", href: "/estimate/instant" },
+  cta: { title: "Planning a Skylight Project?", desc: "Get a free, no-obligation estimate from our skylight experts.", button: "Get Free Skylight Estimate", href: "/instant-estimate" },
   popularHeading: "Popular Skylight Topics",
   popular: [
     { label: "Skylight Leaks", count: 16 },

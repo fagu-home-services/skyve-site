@@ -25,7 +25,7 @@ export function FinalCTA() {
         </p>
         <div className="mt-9 flex flex-wrap justify-center gap-4">
           <Link
-            href="/estimate/instant"
+            href="/instant-estimate/"
             className="inline-flex items-center gap-2 rounded-lg bg-accent px-7 py-3.5 text-sm font-semibold text-clear shadow-elevated transition-colors hover:bg-accent-hover"
           >
             Get Instant Estimate

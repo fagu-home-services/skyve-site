@@ -19,7 +19,7 @@ export function PromiseBand() {
           </p>
         </div>
         <Link
-          href="/estimate/instant"
+          href="/instant-estimate/"
           className="inline-flex shrink-0 items-center gap-2 rounded-lg bg-accent px-7 py-3.5 text-sm font-semibold text-clear shadow-elevated transition-colors hover:bg-accent-hover"
         >
           Book My Free Inspection <ArrowRight className="h-4 w-4" />

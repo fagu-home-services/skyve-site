@@ -31,7 +31,7 @@ export default function WhySkyvePage() {
           subtitle="Get a free estimate or schedule an inspection today."
           primary={{
             label: "Get Your Free Estimate",
-            href: "/estimate/instant",
+            href: "/instant-estimate/",
             icon: <ArrowRight className="h-4 w-4" />,
           }}
           secondary={{

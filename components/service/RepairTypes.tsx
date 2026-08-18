@@ -27,7 +27,7 @@ export function RepairTypes({ data }: { data: ServicePage }) {
                   {r.desc}
                 </p>
                 <Link
-                  href="/estimate/instant"
+                  href="/instant-estimate/"
                   className="mt-3 inline-flex items-center gap-1 text-xs font-semibold text-ridge transition-colors hover:text-accent"
                 >
                   Learn More <ArrowRight className="h-3.5 w-3.5" />

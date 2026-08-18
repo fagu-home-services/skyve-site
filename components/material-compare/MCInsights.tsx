@@ -34,7 +34,7 @@ export function MCInsights() {
               </li>
             ))}
           </ul>
-          <Link href="/estimate/instant" className="mt-5 flex w-full items-center justify-center gap-2 rounded-lg bg-accent px-5 py-3 text-sm font-semibold text-clear transition-colors hover:bg-accent-hover">
+          <Link href="/instant-estimate/" className="mt-5 flex w-full items-center justify-center gap-2 rounded-lg bg-accent px-5 py-3 text-sm font-semibold text-clear transition-colors hover:bg-accent-hover">
             Get Free Estimate <ArrowRight className="h-4 w-4" />
           </Link>
           <a href={COMPANY.phoneHref} className="mt-4 flex items-center justify-center gap-2 text-sm font-semibold text-sky hover:text-clear">

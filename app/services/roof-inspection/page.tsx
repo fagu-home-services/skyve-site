@@ -38,7 +38,7 @@ export default function RoofInspectionPage() {
           }}
           secondary={{
             label: "Get a Free Estimate",
-            href: "/estimate/instant",
+            href: "/instant-estimate/",
             icon: <CalendarDays className="h-4 w-4" />,
           }}
         />

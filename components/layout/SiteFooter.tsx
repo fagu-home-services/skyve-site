@@ -79,7 +79,7 @@ export function SiteFooter() {
           </p>
           <p className="flex items-center gap-3">
             {/* /all-pages is the internal review hub — reachable by URL, never linked publicly. */}
-            <a href="/painel/login.php" className="transition-colors hover:text-accent">
+            <a href="/login" className="transition-colors hover:text-accent">
               Staff
             </a>
             <span aria-hidden>·</span>

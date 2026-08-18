@@ -88,7 +88,7 @@ export const ROOF_REPLACEMENT: ServicePage = {
     { title: "Asphalt Shingles", desc: "Versatile, affordable, and available in a variety of styles and colors.", image: "/images/1568605114967-8130f3a36994.jpg", href: liveHref("/materials/architectural-shingles", "/services") },
     { title: "Designer Shingles", desc: "Thicker, dimensional shingles that deliver enhanced beauty and durability.", image: "/images/1572120360610-d971b9d7767c.jpg", href: liveHref("/materials/luxury-shingles", "/services") },
     { title: "Metal Roofing", desc: "Exceptional longevity, energy efficiency, and modern style.", image: "/images/1576941089067-2de3c901e126.jpg", href: liveHref("/materials/metal-roofing", "/services") },
-    { title: "Premium Upgrades", desc: "Underlayment, ventilation, and ice & water protection for maximum performance.", image: "/images/1583608205776-bfd35f0d9f83.jpg", href: liveHref("/estimate/detailed", "/estimate/instant") },
+    { title: "Premium Upgrades", desc: "Underlayment, ventilation, and ice & water protection for maximum performance.", image: "/images/1583608205776-bfd35f0d9f83.jpg", href: liveHref("/estimate/detailed", "/instant-estimate") },
   ],
 
   processTitle: "Our Roof Replacement Process",
