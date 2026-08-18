@@ -2,7 +2,9 @@ import type { Metadata } from "next";
 import { Phone } from "lucide-react";
 import { Logo } from "@/components/shared/Logo";
 import { COMPANY } from "@/lib/company";
-import { RoofEstimator } from "@/components/estimate/RoofEstimator";
+import { InstantEstimateShell } from "@/components/estimate/InstantEstimateShell";
+import { WhatsIncluded } from "@/components/estimate/WhatsIncluded";
+import { EstimateFAQ } from "@/components/estimate/EstimateFAQ";
 
 /* The QR-code / print landing (www.skyvewa.com/instant-estimate). Instant roof
    estimator: address → satellite measurement (Google Solar, calibrated to real
@@ -28,7 +30,10 @@ export default function InstantEstimatePage() {
       </header>
 
       <main className="flex-1">
-        <RoofEstimator />
+        <InstantEstimateShell>
+          <WhatsIncluded />
+          <EstimateFAQ />
+        </InstantEstimateShell>
       </main>
 
       <footer className="bg-horizon py-7 text-clear">

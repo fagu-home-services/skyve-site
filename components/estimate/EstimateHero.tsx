@@ -77,11 +77,11 @@ export function EstimateHero() {
         <div className="text-clear">
           <p className="eyebrow text-sky">Instant Estimate</p>
           <h1 className="mt-4 font-serif text-4xl font-extrabold leading-[1.08] sm:text-5xl">
-            Get Your Roof Estimate In Less Than 60 Seconds
+            Get Your Roof Estimate In About A Minute
           </h1>
           <p className="mt-5 max-w-lg text-base leading-relaxed text-sky-soft/90">
-            Our system uses aerial measurements, local pricing data, and real
-            project history to give you the most accurate estimate possible.
+            Our system uses aerial measurements and local pricing data to give you
+            a fast, approximate estimate — confirmed on a free on-site inspection.
           </p>
           <div className="mt-7 flex flex-wrap gap-x-7 gap-y-3">
             {BADGES.map((b) => (
