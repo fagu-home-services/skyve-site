@@ -22,6 +22,7 @@ export default function ConfigurePage() {
         address="10124 126th Ave NE, Kirkland, WA 98033"
         areaSqft={2620}
         squares={26.2}
+        perimeterFt={187}
         stories="2 Stories"
         builtYear="2004"
         mapUrl={SAMPLE_MAP}

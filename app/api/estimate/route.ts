@@ -101,6 +101,27 @@ function ringToPoly(geojson?: string): string | undefined {
   }
 }
 
+/** Perimeter of a footprint ring in feet (for gutter/fascia estimates). */
+function ringPerimeterFt(geojson?: string): number {
+  if (!geojson) return 0;
+  try {
+    const coords = (JSON.parse(geojson) as { coordinates?: number[][][] })?.coordinates?.[0];
+    if (!Array.isArray(coords) || coords.length < 3) return 0;
+    let m = 0;
+    for (let i = 0; i < coords.length - 1; i++) {
+      const [lng1, lat1] = coords[i];
+      const [lng2, lat2] = coords[i + 1];
+      const la = (((lat1 + lat2) / 2) * Math.PI) / 180;
+      const dy = (lat1 - lat2) * 111320;
+      const dx = (lng1 - lng2) * 111320 * Math.cos(la);
+      m += Math.hypot(dx, dy);
+    }
+    return Math.round(m * 3.28084);
+  } catch {
+    return 0;
+  }
+}
+
 export async function POST(req: Request) {
   let body: Body;
   try {
@@ -184,6 +205,7 @@ export async function POST(req: Request) {
     const plng = lng;
     let fpDebug: { areaM2: number; dQuery: number; dMain: number; added: boolean }[] | null = null;
     let mainFootprintM2 = 0;
+    let perimeterFt = 0;
     try {
       const buildings = await buildingsNear(plat, plng, 28);
       if (buildings.length >= 1) {
@@ -192,6 +214,7 @@ export async function POST(req: Request) {
           .sort((a, z) => a.d - z.d);
         const mainFp = withDist[0].b;
         mainFootprintM2 = mainFp.areaM2;
+        perimeterFt = ringPerimeterFt(mainFp.geojson);
         structures[0].polygon = ringToPoly(mainFp.geojson); // draw the house outline
         let detached = 0;
         fpDebug = [];
@@ -245,6 +268,7 @@ export async function POST(req: Request) {
       lat,
       lng,
       areaMeters2: totalSlopedM2,
+      perimeterFt,
       suggestedSlope: suggested,
       imageryQuality: roof.imageryQuality,
       structures,

@@ -6,8 +6,9 @@ import {
   Droplets, Ruler, Sun, Flame, Grid3x3, Wind, Snowflake, ShieldCheck, Minus, Plus, ChevronDown,
 } from "lucide-react";
 import {
-  CONFIG_MATERIALS, CONFIG_COLORS, CONFIG_ADDONS, CONFIG_IS_PLACEHOLDER, TAX_RATE,
-  computeConfig, type AddonSelection,
+  CONFIG_CATEGORIES, CONFIG_COLORS, SKYLIGHT_SIZES, PRICING, TAX_RATE,
+  GUTTER_PERIMETER_FACTOR, FASCIA_PERIMETER_FACTOR, CONFIG_IS_PLACEHOLDER,
+  computeConfig, type Grade, type Selection,
 } from "@/lib/configurator-config";
 import { COMPANY } from "@/lib/company";
 
@@ -15,6 +16,7 @@ type Props = {
   address?: string;
   areaSqft?: number;
   squares?: number;
+  perimeterFt?: number;
   stories?: string;
   builtYear?: string;
   mapUrl?: string | null;
@@ -23,44 +25,53 @@ type Props = {
 };
 
 const money = (n: number) => "$" + Math.round(n).toLocaleString("en-US");
-
-const ADDON_ICON: Record<string, typeof Droplets> = {
-  gutters: Droplets, fascia: Ruler, skylight: Sun, chimney: Flame,
-  plywood: Grid3x3, ventilation: Wind, icewater: Snowflake, underlayment: ShieldCheck,
-};
-
-const WIZARD = ["Your Home", "Roofing", "Options", "Review"];
+const WIZARD = ["Your Home", "Material", "Options", "Review"];
 
 export function RoofConfigurator({
   address = "9827 NE 13th St, Kirkland, WA 98033",
   areaSqft = 2450,
   squares = 24.5,
+  perimeterFt = 190,
   stories = "2 Stories",
   builtYear = "2012",
   mapUrl = null,
   onRequestInspection,
   onSaveEstimate,
 }: Props) {
-  const [materialId, setMaterialId] = useState("landmark");
+  const [categoryId, setCategoryId] = useState("asphalt");
+  const [grade, setGrade] = useState<Grade>("Better");
   const [colorIdx, setColorIdx] = useState(0);
   const [view, setView] = useState<"aerial" | "3d">("aerial");
-  const [addons, setAddons] = useState<AddonSelection>({
-    gutters: true, fascia: true, skylight: 2, chimney: true, plywood: 0,
-    ventilation: false, icewater: false, underlayment: false,
-  });
 
-  const result = computeConfig(squares, materialId, addons);
+  const gutterDefault = Math.max(0, Math.round(perimeterFt * GUTTER_PERIMETER_FACTOR));
+  const fasciaDefault = Math.max(0, Math.round(perimeterFt * FASCIA_PERIMETER_FACTOR));
+  const [gutterOn, setGutterOn] = useState(true);
+  const [gutterFt, setGutterFt] = useState(gutterDefault || 100);
+  const [fasciaOn, setFasciaOn] = useState(true);
+  const [fasciaFt, setFasciaFt] = useState(fasciaDefault || 150);
+  const [ventilation, setVentilation] = useState(true);
+  const [chimney, setChimney] = useState(false);
+  const [iceWater, setIceWater] = useState(false);
+  const [underlayment, setUnderlayment] = useState(false);
+  const [plywoodSheets, setPlywoodSheets] = useState(0);
+  const [skylightSizeId, setSkylightSizeId] = useState("2x4");
+  const [skylightQty, setSkylightQty] = useState(0);
+
+  const category = CONFIG_CATEGORIES.find((c) => c.id === categoryId) || CONFIG_CATEGORIES[0];
   const color = CONFIG_COLORS[colorIdx];
 
-  const setQty = (id: string, d: number) =>
-    setAddons((s) => ({ ...s, [id]: Math.max(0, (Number(s[id]) || 0) + d) }));
-  const toggle = (id: string) => setAddons((s) => ({ ...s, [id]: !s[id] }));
-  const setSelect = (id: string, idx: number) => setAddons((s) => ({ ...s, [id]: idx }));
+  const sel: Selection = {
+    categoryId, grade,
+    gutters: gutterOn ? gutterFt : null,
+    fascia: fasciaOn ? fasciaFt : null,
+    ventilation, chimney, iceWater, underlayment, plywoodSheets, skylightSizeId, skylightQty,
+  };
+  const result = computeConfig(squares, sel);
 
   function summary(): string {
     const extras = result.lines.filter((l) => l.id !== "material" && l.amount > 0).map((l) => l.label);
     return (
-      `Configured estimate · ${result.material.brand} ${result.material.name} (${color.name}) · ` +
+      `Configured estimate · ${category.label} — ${grade} (${color.name}) · ` +
       `~${areaSqft.toLocaleString()} sq ft · ${extras.length ? extras.join(", ") : "no add-ons"} · ` +
       `Total ${money(result.total)}`
     );
@@ -70,7 +81,6 @@ export function RoofConfigurator({
 
   return (
     <div className="min-h-screen bg-mist-soft">
-      {/* Header */}
       <header className="border-b border-mist bg-clear">
         <div className="container-skyve flex items-center justify-between gap-4 py-3">
           <span className="font-serif text-lg font-extrabold tracking-tight text-horizon">
@@ -93,42 +103,63 @@ export function RoofConfigurator({
 
       <div className="container-skyve py-6">
         <h1 className="font-serif text-2xl font-bold text-horizon">Customize Your Roof &amp; See Your Price</h1>
-        <p className="mt-1 text-sm text-ink-50">Select the options you want and watch your estimate update in real time.</p>
+        <p className="mt-1 text-sm text-ink-50">Pick a material, then Good / Better / Best — your estimate updates in real time.</p>
+
+        {/* Category menu (Airbnb-style) */}
+        <div className="mt-4 flex gap-2 overflow-x-auto pb-1">
+          {CONFIG_CATEGORIES.map((c) => {
+            const on = c.id === categoryId;
+            return (
+              <button
+                key={c.id}
+                onClick={() => setCategoryId(c.id)}
+                className={`flex shrink-0 items-center gap-2 rounded-full border px-4 py-2 text-sm font-semibold transition-colors ${on ? "border-ridge bg-ridge/5 text-ridge" : "border-mist bg-clear text-ink-70 hover:border-ridge/40"}`}
+              >
+                <span className="h-4 w-4 rounded-sm border border-black/10" style={{ background: c.swatch }} />
+                {c.label}
+              </button>
+            );
+          })}
+        </div>
 
         <div className="mt-5 grid gap-6 lg:grid-cols-[280px_minmax(0,1fr)_340px]">
-          {/* ───────── LEFT: home + material + color ───────── */}
+          {/* ───────── LEFT ───────── */}
           <aside className="space-y-5">
             <div className={card + " p-5"}>
-              <div className="flex items-center justify-between">
-                <h2 className="font-serif text-base font-bold text-horizon">Your Home</h2>
-              </div>
+              <h2 className="font-serif text-base font-bold text-horizon">Your Home</h2>
               <p className="mt-1 text-sm text-ink-70">{address}</p>
               <div className="mt-4 grid grid-cols-3 gap-2 text-center">
-                <Fact icon={<Home className="h-4 w-4" />} value={`${areaSqft.toLocaleString()}`} label="sq ft" />
+                <Fact icon={<Home className="h-4 w-4" />} value={areaSqft.toLocaleString()} label="sq ft" />
                 <Fact icon={<Calendar className="h-4 w-4" />} value={builtYear} label="Built" />
                 <Fact icon={<Stories className="h-4 w-4" />} value={stories.split(" ")[0]} label="Stories" />
               </div>
             </div>
 
             <div className={card + " p-5"}>
-              <h2 className="font-serif text-base font-bold text-horizon">Choose Your Roofing Material</h2>
+              <h2 className="font-serif text-base font-bold text-horizon">Choose {category.label}</h2>
+              <p className="mt-0.5 text-xs text-ink-50">Good · Better · Best</p>
               <div className="mt-3 space-y-2.5">
-                {CONFIG_MATERIALS.map((m) => {
-                  const total = computeConfig(squares, m.id, {}).lines[0].amount;
-                  const sel = m.id === materialId;
+                {category.tiers.map((t) => {
+                  const total = computeConfig(squares, { ...sel, grade: t.grade }).lines[0].amount;
+                  const on = t.grade === grade;
                   return (
                     <button
-                      key={m.id}
-                      onClick={() => setMaterialId(m.id)}
-                      className={`flex w-full items-center gap-3 rounded-xl border-2 p-3 text-left transition-colors ${sel ? "border-ridge bg-ridge/5" : "border-mist hover:border-ridge/40"}`}
+                      key={t.grade}
+                      onClick={() => setGrade(t.grade)}
+                      className={`relative w-full rounded-xl border-2 p-3 text-left transition-colors ${on ? "border-ridge bg-ridge/5" : "border-mist hover:border-ridge/40"}`}
                     >
-                      <span className="h-11 w-11 shrink-0 rounded-md border border-black/10" style={{ background: m.swatch }} />
-                      <span className="min-w-0 flex-1">
-                        <span className="block truncate text-sm font-semibold text-horizon">{m.brand} {m.name}</span>
-                        <span className="block text-xs text-ink-50">{m.tier}</span>
-                        <span className="mt-0.5 block text-sm font-bold text-horizon">{money(total)}</span>
-                      </span>
-                      {sel && <Check className="h-5 w-5 shrink-0 text-ridge" />}
+                      {t.grade === "Better" && <span className="absolute -top-2 right-3 rounded-full bg-ridge px-2 py-0.5 text-[10px] font-bold text-clear">Most popular</span>}
+                      <div className="flex items-center gap-3">
+                        <span className="h-10 w-10 shrink-0 rounded-md border border-black/10" style={{ background: color.hex }} />
+                        <span className="min-w-0 flex-1">
+                          <span className="flex items-center gap-1.5">
+                            <span className="text-xs font-bold uppercase tracking-wide text-ridge">{t.grade}</span>
+                            {on && <Check className="h-4 w-4 text-ridge" />}
+                          </span>
+                          <span className="block truncate text-sm font-semibold text-horizon">{t.name}</span>
+                          <span className="block text-sm font-bold text-horizon">{money(total)}</span>
+                        </span>
+                      </div>
                     </button>
                   );
                 })}
@@ -145,7 +176,7 @@ export function RoofConfigurator({
                     onClick={() => setColorIdx(i)}
                     title={c.name}
                     aria-label={c.name}
-                    className={`h-8 w-8 rounded-md border-2 transition-transform ${i === colorIdx ? "border-ridge scale-110" : "border-transparent ring-1 ring-black/10"}`}
+                    className={`h-8 w-8 rounded-md border-2 transition-transform ${i === colorIdx ? "scale-110 border-ridge" : "border-transparent ring-1 ring-black/10"}`}
                     style={{ background: c.hex }}
                   />
                 ))}
@@ -161,7 +192,7 @@ export function RoofConfigurator({
             </div>
           </aside>
 
-          {/* ───────── CENTER: image + options ───────── */}
+          {/* ───────── CENTER ───────── */}
           <main className="space-y-5">
             <div className="relative overflow-hidden rounded-2xl border border-mist bg-horizon-deep">
               <div className="absolute left-3 top-3 z-10 flex overflow-hidden rounded-lg bg-horizon-deep/70 p-0.5 text-xs font-semibold backdrop-blur">
@@ -183,67 +214,59 @@ export function RoofConfigurator({
             <div>
               <h2 className="font-serif text-base font-bold text-horizon">Add or Upgrade Your Options</h2>
               <div className="mt-3 grid gap-3 sm:grid-cols-2">
-                {CONFIG_ADDONS.map((a) => {
-                  const Icon = ADDON_ICON[a.id] || Info;
-                  const on = a.type === "toggle" ? !!addons[a.id] : a.type === "qty" ? Number(addons[a.id]) > 0 : Number(addons[a.id]) > 0;
-                  return (
-                    <div key={a.id} className={`rounded-xl border p-3.5 ${on ? "border-ridge/50 bg-ridge/5" : "border-mist bg-clear"}`}>
-                      <div className="flex items-start gap-2.5">
-                        <Icon className="mt-0.5 h-4.5 w-4.5 shrink-0 text-ridge" />
-                        <div className="min-w-0 flex-1">
-                          <p className="text-sm font-semibold text-horizon">{a.name}</p>
-                          <p className="text-xs text-ink-50">{a.desc}</p>
-                        </div>
-                        {a.type === "toggle" && (
-                          <button
-                            onClick={() => toggle(a.id)}
-                            aria-pressed={!!addons[a.id]}
-                            className={`grid h-5 w-5 shrink-0 place-items-center rounded border-2 ${addons[a.id] ? "border-ridge bg-ridge text-clear" : "border-mist"}`}
-                          >
-                            {addons[a.id] && <Check className="h-3.5 w-3.5" />}
-                          </button>
-                        )}
-                      </div>
-                      <div className="mt-2.5 flex items-center justify-between">
-                        {a.type === "toggle" && (
-                          <>
-                            <span className="text-sm font-bold text-horizon">{money(a.price)}</span>
-                            {a.note && <span className="text-xs text-ink-50">{a.note}</span>}
-                          </>
-                        )}
-                        {a.type === "qty" && (
-                          <>
-                            <div className="flex items-center gap-2">
-                              <button onClick={() => setQty(a.id, -1)} className="grid h-6 w-6 place-items-center rounded border border-mist text-ink-70 hover:border-ridge"><Minus className="h-3.5 w-3.5" /></button>
-                              <span className="w-5 text-center text-sm font-semibold text-horizon">{Number(addons[a.id]) || 0}</span>
-                              <button onClick={() => setQty(a.id, 1)} className="grid h-6 w-6 place-items-center rounded border border-mist text-ink-70 hover:border-ridge"><Plus className="h-3.5 w-3.5" /></button>
-                            </div>
-                            <span className="text-sm font-bold text-horizon">{money(a.price * (Number(addons[a.id]) || 0))}</span>
-                          </>
-                        )}
-                        {a.type === "select" && (
-                          <div className="relative w-full">
-                            <select
-                              value={Number(addons[a.id]) || 0}
-                              onChange={(e) => setSelect(a.id, Number(e.target.value))}
-                              className="w-full appearance-none rounded-lg border border-mist bg-mist-soft px-3 py-2 pr-8 text-sm text-ink-90 outline-none focus:border-ridge"
-                            >
-                              {a.options.map((o, i) => (
-                                <option key={o.label} value={i}>{o.label}{o.price ? ` (${money(o.price)})` : o.note ? ` — ${o.note}` : ""}</option>
-                              ))}
-                            </select>
-                            <ChevronDown className="pointer-events-none absolute right-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-50" />
-                          </div>
-                        )}
-                      </div>
+                {/* Gutters */}
+                <AddonCard icon={Droplets} name="Gutters & Downspouts" desc={`5" Seamless · $${PRICING.gutterPerFoot}/ft`} on={gutterOn} onToggle={() => setGutterOn((v) => !v)}>
+                  <div className="flex items-center justify-between">
+                    <Stepper value={gutterFt} onChange={(d) => setGutterFt((v) => Math.max(0, v + d))} step={5} suffix="ft" disabled={!gutterOn} />
+                    <span className="text-sm font-bold text-horizon">{money(gutterOn ? gutterFt * PRICING.gutterPerFoot : 0)}</span>
+                  </div>
+                  <p className="mt-1 text-[11px] text-ink-50">Estimated from your roofline — adjust if needed.</p>
+                </AddonCard>
+
+                {/* Fascia */}
+                <AddonCard icon={Ruler} name="Fascia & Trim Wrap" desc={`Aluminum · $${PRICING.fasciaPerFoot}/ft`} on={fasciaOn} onToggle={() => setFasciaOn((v) => !v)}>
+                  <div className="flex items-center justify-between">
+                    <Stepper value={fasciaFt} onChange={(d) => setFasciaFt((v) => Math.max(0, v + d))} step={5} suffix="ft" disabled={!fasciaOn} />
+                    <span className="text-sm font-bold text-horizon">{money(fasciaOn ? fasciaFt * PRICING.fasciaPerFoot : 0)}</span>
+                  </div>
+                  <p className="mt-1 text-[11px] text-ink-50">Estimated from your roofline — adjust if needed.</p>
+                </AddonCard>
+
+                {/* Skylight replacement */}
+                <AddonCard icon={Sun} name="Skylight Replacement" desc="Replace existing skylights" on={skylightQty > 0}>
+                  <div className="flex items-center gap-2">
+                    <div className="relative flex-1">
+                      <select value={skylightSizeId} onChange={(e) => setSkylightSizeId(e.target.value)} className="w-full appearance-none rounded-lg border border-mist bg-mist-soft px-3 py-2 pr-8 text-sm text-ink-90 outline-none focus:border-ridge">
+                        {SKYLIGHT_SIZES.map((s) => <option key={s.id} value={s.id}>{s.label} — {money(s.price)}</option>)}
+                      </select>
+                      <ChevronDown className="pointer-events-none absolute right-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-50" />
                     </div>
-                  );
-                })}
+                    <Stepper value={skylightQty} onChange={(d) => setSkylightQty((v) => Math.max(0, v + d))} step={1} />
+                  </div>
+                  <p className="mt-1.5 text-[11px] text-ink-50">Replacement only. No skylight yet? New installs need an on-site inspection.</p>
+                </AddonCard>
+
+                {/* Plywood */}
+                <AddonCard icon={Grid3x3} name="Plywood Replacement" desc={`$${PRICING.plywoodPerSheet}/sheet · $${PRICING.plywoodBulkPerSheet} over ${PRICING.plywoodBulkOver}`} on={plywoodSheets > 0}>
+                  <div className="flex items-center justify-between">
+                    <Stepper value={plywoodSheets} onChange={(d) => setPlywoodSheets((v) => Math.max(0, v + d))} step={1} suffix="sheets" />
+                    <span className="text-sm font-bold text-horizon">{plywoodSheets > 0 ? money(plywoodSheets * (plywoodSheets > PRICING.plywoodBulkOver ? PRICING.plywoodBulkPerSheet : PRICING.plywoodPerSheet)) : "As needed"}</span>
+                  </div>
+                </AddonCard>
+
+                {/* Ventilation */}
+                <ToggleCard icon={Wind} name="Roof Ventilation (Ridge Vents)" desc="Increase attic ventilation" price={PRICING.ventilation} on={ventilation} onToggle={() => setVentilation((v) => !v)} />
+                {/* Chimney */}
+                <ToggleCard icon={Flame} name="Chimney Flashing / Cap" desc="New flashing + stainless cap" price={PRICING.chimney} on={chimney} onToggle={() => setChimney((v) => !v)} />
+                {/* Ice & Water */}
+                <ToggleCard icon={Snowflake} name="Ice & Water Shield Upgrade" desc="High-temp underlayment" price={PRICING.iceWater} on={iceWater} onToggle={() => setIceWater((v) => !v)} />
+                {/* Underlayment */}
+                <ToggleCard icon={ShieldCheck} name="Synthetic Underlayment Upgrade" desc="Upgrade from felt" price={PRICING.underlayment} on={underlayment} onToggle={() => setUnderlayment((v) => !v)} />
               </div>
             </div>
           </main>
 
-          {/* ───────── RIGHT: live estimate ───────── */}
+          {/* ───────── RIGHT ───────── */}
           <aside>
             <div className={card + " p-5 lg:sticky lg:top-6"}>
               <h2 className="font-serif text-lg font-bold text-horizon">Your Estimate</h2>
@@ -252,8 +275,11 @@ export function RoofConfigurator({
               <div className="mt-4 space-y-2 border-t border-mist pt-4 text-sm">
                 {result.lines.map((l) => (
                   <div key={l.id} className="flex items-baseline justify-between gap-2">
-                    <span className="text-ink-70">{l.id === "material" ? "Roofing Material" : l.label}</span>
-                    <span className="font-semibold text-horizon">{l.amount > 0 ? money(l.amount) : "Included"}</span>
+                    <span className="min-w-0 text-ink-70">
+                      {l.id === "material" ? "Roofing Material" : l.label}
+                      {l.note && <span className="ml-1 text-xs text-ink-50">({l.note})</span>}
+                    </span>
+                    <span className="shrink-0 font-semibold text-horizon">{l.amount > 0 ? money(l.amount) : "Included"}</span>
                   </div>
                 ))}
               </div>
@@ -274,16 +300,10 @@ export function RoofConfigurator({
               </div>
 
               <div className="mt-4 space-y-2.5">
-                <button
-                  onClick={() => onRequestInspection?.(summary(), result.total)}
-                  className="flex w-full items-center justify-center gap-2 rounded-lg bg-accent px-5 py-3.5 text-sm font-bold text-clear shadow-card hover:bg-accent-hover"
-                >
+                <button onClick={() => onRequestInspection?.(summary(), result.total)} className="flex w-full items-center justify-center gap-2 rounded-lg bg-accent px-5 py-3.5 text-sm font-bold text-clear shadow-card hover:bg-accent-hover">
                   <CalendarCheck className="h-4 w-4" /> Request Inspection
                 </button>
-                <button
-                  onClick={() => onSaveEstimate?.(summary(), result.total)}
-                  className="flex w-full items-center justify-center gap-2 rounded-lg border border-mist bg-clear px-5 py-3.5 text-sm font-semibold text-horizon hover:border-ridge"
-                >
+                <button onClick={() => onSaveEstimate?.(summary(), result.total)} className="flex w-full items-center justify-center gap-2 rounded-lg border border-mist bg-clear px-5 py-3.5 text-sm font-semibold text-horizon hover:border-ridge">
                   <Bookmark className="h-4 w-4" /> Save My Estimate
                 </button>
                 <button className="flex w-full items-center justify-center gap-1.5 text-xs font-semibold text-ink-50 hover:text-ridge">
@@ -294,7 +314,7 @@ export function RoofConfigurator({
               <p className="mt-4 flex items-start gap-1.5 text-[11px] leading-snug text-ink-50">
                 <Info className="mt-0.5 h-3 w-3 shrink-0" />
                 {CONFIG_IS_PLACEHOLDER
-                  ? "Sample pricing for layout preview — final numbers are confirmed after a free on-site inspection."
+                  ? "Sample pricing for preview — final numbers confirmed after a free on-site inspection."
                   : "Approximate estimate — final price confirmed after a free on-site inspection."}
               </p>
             </div>
@@ -312,5 +332,43 @@ function Fact({ icon, value, label }: { icon: React.ReactNode; value: string; la
       <p className="text-sm font-bold text-horizon">{value}</p>
       <p className="text-[10px] text-ink-50">{label}</p>
     </div>
+  );
+}
+
+function Stepper({ value, onChange, step, suffix, disabled }: { value: number; onChange: (d: number) => void; step: number; suffix?: string; disabled?: boolean }) {
+  return (
+    <div className={`flex items-center gap-2 ${disabled ? "opacity-40" : ""}`}>
+      <button disabled={disabled} onClick={() => onChange(-step)} className="grid h-6 w-6 place-items-center rounded border border-mist text-ink-70 hover:border-ridge disabled:cursor-not-allowed"><Minus className="h-3.5 w-3.5" /></button>
+      <span className="min-w-[2.5rem] text-center text-sm font-semibold text-horizon">{value}{suffix ? ` ${suffix}` : ""}</span>
+      <button disabled={disabled} onClick={() => onChange(step)} className="grid h-6 w-6 place-items-center rounded border border-mist text-ink-70 hover:border-ridge disabled:cursor-not-allowed"><Plus className="h-3.5 w-3.5" /></button>
+    </div>
+  );
+}
+
+function AddonCard({ icon: Icon, name, desc, on, onToggle, children }: { icon: typeof Droplets; name: string; desc: string; on: boolean; onToggle?: () => void; children: React.ReactNode }) {
+  return (
+    <div className={`rounded-xl border p-3.5 ${on ? "border-ridge/50 bg-ridge/5" : "border-mist bg-clear"}`}>
+      <div className="flex items-start gap-2.5">
+        <Icon className="mt-0.5 h-4.5 w-4.5 shrink-0 text-ridge" />
+        <div className="min-w-0 flex-1">
+          <p className="text-sm font-semibold text-horizon">{name}</p>
+          <p className="text-xs text-ink-50">{desc}</p>
+        </div>
+        {onToggle && (
+          <button onClick={onToggle} aria-pressed={on} className={`grid h-5 w-5 shrink-0 place-items-center rounded border-2 ${on ? "border-ridge bg-ridge text-clear" : "border-mist"}`}>
+            {on && <Check className="h-3.5 w-3.5" />}
+          </button>
+        )}
+      </div>
+      <div className="mt-2.5">{children}</div>
+    </div>
+  );
+}
+
+function ToggleCard({ icon, name, desc, price, on, onToggle }: { icon: typeof Droplets; name: string; desc: string; price: number; on: boolean; onToggle: () => void }) {
+  return (
+    <AddonCard icon={icon} name={name} desc={desc} on={on} onToggle={onToggle}>
+      <span className="text-sm font-bold text-horizon">{money(price)}</span>
+    </AddonCard>
   );
 }
