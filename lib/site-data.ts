@@ -145,24 +145,26 @@ export const ARTICLES: Article[] = [
 ];
 
 /* Service-area map dots — rough relative positions (% of panel), not geographically exact. */
-export type MapCity = { name: string; x: number; y: number; county: "king" | "snohomish" };
+// x/y = % position for the stylized illustration (fallback); lat/lng = real
+// coordinates for the interactive Google map.
+export type MapCity = { name: string; x: number; y: number; lat: number; lng: number; county: "king" | "snohomish" };
 
 export const MAP_CITIES: MapCity[] = [
-  { name: "Everett", x: 58, y: 14, county: "snohomish" },
-  { name: "Lynnwood", x: 44, y: 26, county: "snohomish" },
-  { name: "Edmonds", x: 33, y: 30, county: "snohomish" },
-  { name: "Monroe", x: 78, y: 24, county: "snohomish" },
-  { name: "Snohomish", x: 70, y: 33, county: "snohomish" },
-  { name: "Shoreline", x: 36, y: 42, county: "king" },
-  { name: "Bothell", x: 52, y: 38, county: "king" },
-  { name: "Redmond", x: 66, y: 48, county: "king" },
-  { name: "Kirkland", x: 52, y: 50, county: "king" },
-  { name: "Seattle", x: 34, y: 56, county: "king" },
-  { name: "Bellevue", x: 52, y: 60, county: "king" },
-  { name: "Sammamish", x: 70, y: 58, county: "king" },
-  { name: "Issaquah", x: 72, y: 68, county: "king" },
-  { name: "Renton", x: 48, y: 72, county: "king" },
-  { name: "Kent", x: 46, y: 84, county: "king" },
+  { name: "Everett", x: 58, y: 14, lat: 47.979, lng: -122.2021, county: "snohomish" },
+  { name: "Lynnwood", x: 44, y: 26, lat: 47.8209, lng: -122.3151, county: "snohomish" },
+  { name: "Edmonds", x: 33, y: 30, lat: 47.8107, lng: -122.3774, county: "snohomish" },
+  { name: "Monroe", x: 78, y: 24, lat: 47.8557, lng: -121.9715, county: "snohomish" },
+  { name: "Snohomish", x: 70, y: 33, lat: 47.9129, lng: -122.0982, county: "snohomish" },
+  { name: "Shoreline", x: 36, y: 42, lat: 47.7557, lng: -122.3415, county: "king" },
+  { name: "Bothell", x: 52, y: 38, lat: 47.7623, lng: -122.2054, county: "king" },
+  { name: "Redmond", x: 66, y: 48, lat: 47.674, lng: -122.1215, county: "king" },
+  { name: "Kirkland", x: 52, y: 50, lat: 47.6769, lng: -122.206, county: "king" },
+  { name: "Seattle", x: 34, y: 56, lat: 47.6062, lng: -122.3321, county: "king" },
+  { name: "Bellevue", x: 52, y: 60, lat: 47.6101, lng: -122.2015, county: "king" },
+  { name: "Sammamish", x: 70, y: 58, lat: 47.6163, lng: -122.0356, county: "king" },
+  { name: "Issaquah", x: 72, y: 68, lat: 47.5301, lng: -122.0326, county: "king" },
+  { name: "Renton", x: 48, y: 72, lat: 47.4829, lng: -122.2171, county: "king" },
+  { name: "Kent", x: 46, y: 84, lat: 47.3809, lng: -122.2348, county: "king" },
 ];
 
 /* Only released pages (see LAUNCH_PATHS in lib/launch-phase.ts). As pages are

@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
-import { MAP_CITIES } from "@/lib/site-data";
+import { ServiceAreaCanvas } from "@/components/home/ServiceAreaCanvas";
 
 export function ServiceAreaMap() {
   return (
@@ -23,42 +23,8 @@ export function ServiceAreaMap() {
           </Link>
         </div>
 
-        {/* Stylized map */}
-        <div className="relative aspect-[16/11] overflow-hidden rounded-2xl border border-mist bg-sky-soft/30 shadow-card">
-          {/* Puget Sound water */}
-          <div className="absolute -left-10 top-0 h-full w-2/5 -skew-x-12 bg-ridge/15" />
-          {/* county tints */}
-          <div className="absolute right-6 top-6 h-2/3 w-3/5 rounded-[40%] bg-ridge/10 blur-2xl" />
-          <div className="absolute bottom-6 left-1/4 h-2/3 w-3/5 rounded-[40%] bg-accent/10 blur-2xl" />
-
-          {/* Legend */}
-          <div className="absolute right-4 top-4 z-10 rounded-lg border border-mist bg-clear/90 p-3 text-xs shadow-card backdrop-blur-sm">
-            <p className="flex items-center gap-2 text-ink-70">
-              <span className="h-2.5 w-2.5 rounded-full bg-ridge" /> King County
-            </p>
-            <p className="mt-1.5 flex items-center gap-2 text-ink-70">
-              <span className="h-2.5 w-2.5 rounded-full bg-accent" /> Snohomish County
-            </p>
-          </div>
-
-          {/* City dots */}
-          {MAP_CITIES.map((c) => (
-            <div
-              key={c.name}
-              className="absolute z-10 flex -translate-x-1/2 -translate-y-1/2 flex-col items-center"
-              style={{ left: `${c.x}%`, top: `${c.y}%` }}
-            >
-              <span
-                className={`h-2.5 w-2.5 rounded-full ring-2 ring-clear ${
-                  c.county === "king" ? "bg-ridge" : "bg-accent"
-                }`}
-              />
-              <span className="mt-1 whitespace-nowrap text-[10px] font-medium text-horizon/80">
-                {c.name}
-              </span>
-            </div>
-          ))}
-        </div>
+        {/* Interactive map (falls back to the illustration until the key is set) */}
+        <ServiceAreaCanvas />
       </div>
     </section>
   );
